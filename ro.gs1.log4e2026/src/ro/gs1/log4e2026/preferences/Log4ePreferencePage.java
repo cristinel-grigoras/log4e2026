@@ -75,10 +75,41 @@ public class Log4ePreferencePage extends FieldEditorPreferencePage implements IW
             getFieldEditorParent()
         ));
 
-        // User interaction
+        // User interaction - Exchange dialog
         addField(new BooleanFieldEditor(
             PreferenceConstants.P_SHOW_EXCHANGE_DIALOG,
             "Show confirmation dialog when exchanging frameworks",
+            getFieldEditorParent()
+        ));
+
+        // User interaction - Preview wizards
+        addField(new BooleanFieldEditor(
+            PreferenceConstants.P_WIZARD_DECLARE_CLASS,
+            "Show preview wizard for Declare Logger",
+            getFieldEditorParent()
+        ));
+
+        addField(new BooleanFieldEditor(
+            PreferenceConstants.P_WIZARD_INSERT_METHOD,
+            "Show preview wizard for Insert Log in Method",
+            getFieldEditorParent()
+        ));
+
+        addField(new BooleanFieldEditor(
+            PreferenceConstants.P_WIZARD_INSERT_CLASS,
+            "Show preview wizard for Log This Class",
+            getFieldEditorParent()
+        ));
+
+        addField(new BooleanFieldEditor(
+            PreferenceConstants.P_WIZARD_REPLACE_METHOD,
+            "Show preview wizard for Replace in Method",
+            getFieldEditorParent()
+        ));
+
+        addField(new BooleanFieldEditor(
+            PreferenceConstants.P_WIZARD_REPLACE_CLASS,
+            "Show preview wizard for Replace in Class",
             getFieldEditorParent()
         ));
     }

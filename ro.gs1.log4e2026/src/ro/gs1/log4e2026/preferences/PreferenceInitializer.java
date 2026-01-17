@@ -212,6 +212,14 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer impleme
         store.setDefault(PreferenceConstants.P_INCLUDE_CLASS_NAME, true);
         store.setDefault(PreferenceConstants.P_INCLUDE_METHOD_NAME, true);
         store.setDefault(PreferenceConstants.P_SHOW_EXCHANGE_DIALOG, PreferenceConstants.DEFAULT_SHOW_EXCHANGE_DIALOG);
+
+        // Preview wizard defaults
+        store.setDefault(PreferenceConstants.P_WIZARD_DECLARE_CLASS, PreferenceConstants.DEFAULT_WIZARD_ENABLED);
+        store.setDefault(PreferenceConstants.P_WIZARD_INSERT_METHOD, PreferenceConstants.DEFAULT_WIZARD_ENABLED);
+        store.setDefault(PreferenceConstants.P_WIZARD_INSERT_CLASS, PreferenceConstants.DEFAULT_WIZARD_ENABLED);
+        store.setDefault(PreferenceConstants.P_WIZARD_REPLACE_METHOD, PreferenceConstants.DEFAULT_WIZARD_ENABLED);
+        store.setDefault(PreferenceConstants.P_WIZARD_REPLACE_CLASS, PreferenceConstants.DEFAULT_WIZARD_ENABLED);
+
         store.setDefault(PreferenceConstants.P_LOG_LEVEL_TRACE, true);
         store.setDefault(PreferenceConstants.P_LOG_LEVEL_DEBUG, true);
         store.setDefault(PreferenceConstants.P_LOG_LEVEL_INFO, true);

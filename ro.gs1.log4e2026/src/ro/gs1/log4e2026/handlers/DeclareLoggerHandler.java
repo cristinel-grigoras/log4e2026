@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -27,6 +29,8 @@ import ro.gs1.log4e2026.Log4e2026Plugin;
 import ro.gs1.log4e2026.preferences.PreferenceConstants;
 import ro.gs1.log4e2026.templates.LoggerTemplate;
 import ro.gs1.log4e2026.templates.LoggerTemplates;
+import ro.gs1.log4e2026.wizard.ChangeElement;
+import ro.gs1.log4e2026.wizard.LoggerWizardDialog;
 
 /**
  * Handler for declaring a logger field in the current class.
@@ -101,6 +105,10 @@ public class DeclareLoggerHandler extends AbstractHandler {
             }
         }
 
+        // Get document and old content for preview
+        IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+        String oldContent = document.get();
+
         // Create AST rewrite
         AST ast = astRoot.getAST();
         ASTRewrite rewrite = ASTRewrite.create(ast);
@@ -123,11 +131,49 @@ public class DeclareLoggerHandler extends AbstractHandler {
             bodyRewrite.insertAt(loggerField, insertIndex, null);
         }
 
-        // Apply the rewrite
-        IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+        // Check if wizard preview is enabled
+        boolean showWizard = Log4e2026Plugin.getPreferences()
+                .getBoolean(PreferenceConstants.P_WIZARD_DECLARE_CLASS);
+
+        if (showWizard) {
+            // Apply edits to get preview content
+            TextEdit edits = rewrite.rewriteAST(document, cu.getJavaProject().getOptions(true));
+            edits.apply(document);
+            String previewContent = document.get();
+
+            // Revert to old content
+            document.set(oldContent);
+
+            // Show wizard
+            ChangeElement change = new ChangeElement(cu, oldContent, previewContent);
+            Shell shell = Display.getCurrent().getActiveShell();
+            if (!LoggerWizardDialog.openPreview(shell, change, "Declare Logger")) {
+                return; // User cancelled
+            }
+
+            // User approved - need to re-parse and re-apply since document was reverted
+            parser = ASTParser.newParser(AST.getJLSLatest());
+            parser.setSource(cu);
+            parser.setResolveBindings(true);
+            astRoot = (CompilationUnit) parser.createAST(null);
+            typeDecl = (TypeDeclaration) astRoot.types().get(0);
+            ast = astRoot.getAST();
+            rewrite = ASTRewrite.create(ast);
+
+            addImportsIfNeeded(astRoot, ast, rewrite, template, framework);
+            loggerField = createLoggerField(ast, template, loggerName, className);
+            bodyRewrite = rewrite.getListRewrite(typeDecl, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+            insertIndex = findInsertPosition(typeDecl);
+            if (insertIndex == 0) {
+                bodyRewrite.insertFirst(loggerField, null);
+            } else {
+                bodyRewrite.insertAt(loggerField, insertIndex, null);
+            }
+        }
+
+        // Apply the changes
         TextEdit edits = rewrite.rewriteAST(document, cu.getJavaProject().getOptions(true));
         edits.apply(document);
-
         Log4e2026Plugin.log("Logger declared successfully");
     }
 

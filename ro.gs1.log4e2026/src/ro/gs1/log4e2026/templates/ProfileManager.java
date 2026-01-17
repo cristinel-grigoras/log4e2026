@@ -1,8 +1,13 @@
 package ro.gs1.log4e2026.templates;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.osgi.framework.Bundle;
 
 import ro.gs1.log4e2026.Log4e2026Plugin;
 import ro.gs1.log4e2026.exceptions.Log4eSystemException;
@@ -15,7 +20,7 @@ import ro.gs1.log4e2026.preferences.PreferenceConstants;
 public class ProfileManager {
 
     private static final String PROFILES_FILE = "log4e-profiles.xml";
-    private static final String BUILTIN_PROFILES_RESOURCE = "ro/gs1/log4e2026/templates/log4e-profiles.xml";
+    private static final String BUILTIN_PROFILES_FILE = "log4e-profiles.xml";
 
     private static ProfileManager instance;
     private static final Object LOCK = new Object();
@@ -54,11 +59,15 @@ public class ProfileManager {
     private void initProfiles() {
         profiles = new Profiles();
 
-        // Load built-in profiles from resource
+        // Load built-in profiles from bundle
         try {
-            Profiles builtInProfiles = persistence.readProfiles(BUILTIN_PROFILES_RESOURCE);
-            profiles.addProfiles(builtInProfiles);
-        } catch (Log4eSystemException e) {
+            Profiles builtInProfiles = loadBuiltInProfiles();
+            if (builtInProfiles != null) {
+                profiles.addProfiles(builtInProfiles);
+            } else {
+                createDefaultProfiles();
+            }
+        } catch (Exception e) {
             Log4e2026Plugin.logError("Failed to load built-in profiles", e);
             // Create default profiles programmatically
             createDefaultProfiles();
@@ -83,6 +92,31 @@ public class ProfileManager {
         if (profiles.isNameChanged()) {
             storeProfiles();
             profiles.reset();
+        }
+    }
+
+    /**
+     * Load built-in profiles from the plugin bundle.
+     */
+    private Profiles loadBuiltInProfiles() throws Exception {
+        Log4e2026Plugin plugin = Log4e2026Plugin.getDefault();
+        if (plugin == null) {
+            return null;
+        }
+
+        Bundle bundle = plugin.getBundle();
+        if (bundle == null) {
+            return null;
+        }
+
+        URL fileUrl = FileLocator.find(bundle, new Path(BUILTIN_PROFILES_FILE), null);
+        if (fileUrl == null) {
+            Log4e2026Plugin.log("Built-in profiles file not found in bundle: " + BUILTIN_PROFILES_FILE);
+            return null;
+        }
+
+        try (InputStream inputStream = fileUrl.openStream()) {
+            return persistence.readProfiles(inputStream);
         }
     }
 

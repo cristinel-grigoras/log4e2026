@@ -75,6 +75,17 @@ public class ProfilePersistence {
     }
 
     /**
+     * Read profiles from an input stream.
+     */
+    public Profiles readProfiles(InputStream inputStream) throws Log4eSystemException {
+        try {
+            return parseProfiles(inputStream);
+        } catch (Exception e) {
+            throw new Log4eSystemException("Failed to read profiles from input stream", e);
+        }
+    }
+
+    /**
      * Parse profiles from an input stream.
      */
     private Profiles parseProfiles(InputStream inputStream) throws Exception {

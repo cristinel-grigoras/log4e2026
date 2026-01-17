@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Log4E 2026
+Bundle-SymbolicName: ro.gs1.log4e2026;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: ro.gs1.log4e2026.Log4e2026Plugin
+Bundle-Vendor: GS1 Romania
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.core.resources,
+ org.eclipse.text
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Automatic-Module-Name: ro.gs1.log4e2026
+Bundle-ActivationPolicy: lazy
+Export-Package: ro.gs1.log4e2026,
+ ro.gs1.log4e2026.core,
+ ro.gs1.log4e2026.dialogs,
+ ro.gs1.log4e2026.exceptions,
+ ro.gs1.log4e2026.handlers,
+ ro.gs1.log4e2026.jdt,
+ ro.gs1.log4e2026.operations,
+ ro.gs1.log4e2026.preferences,
+ ro.gs1.log4e2026.settings,
+ ro.gs1.log4e2026.templates,
+ ro.gs1.log4e2026.util,
+ ro.gs1.log4e2026.wizards

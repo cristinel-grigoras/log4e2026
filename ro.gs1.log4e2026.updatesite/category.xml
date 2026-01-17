@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="ro.gs1.log4e2026.feature" version="0.0.0">
+      <category name="log4e2026"/>
+   </feature>
+   <category-def name="log4e2026" label="Log4E 2026">
+      <description>
+         Log4E 2026 - Logging Statement Generator for Eclipse.
+         Automatically insert logging statements into your Java code.
+      </description>
+   </category-def>
+</site>

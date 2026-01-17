@@ -1,0 +1,47 @@
+# Maven build output
+target/
+**/target/
+
+# Eclipse files
+.metadata/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# IDE specific
+.project
+.classpath
+.settings/
+*.launch
+.factorypath
+
+# Generated files
+bin/
+build/
+out/
+
+# Claude Code
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tycho generated
+*.polyglot.*
+.polyglot.*
+
+# Maven wrapper (keep .mvn but exclude downloaded files)
+.mvn/wrapper/maven-wrapper.jar
+
+# Test reports
+surefire-reports/
+failsafe-reports/
+test-output/
+
+# Backup files
+*~
+*.bak
+*.swp

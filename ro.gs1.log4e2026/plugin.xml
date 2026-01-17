@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.eclipse.ui.commands">
+      <category
+            id="ro.gs1.log4e2026.commands.category"
+            name="Log4E 2026">
+      </category>
+      <command
+            id="ro.gs1.log4e2026.commands.declareLogger"
+            name="Declare Logger"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.insertLogStatement"
+            name="Insert Log Statement"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.declareLoggerResource"
+            name="Declare Logger (Resources)"
+            description="Declare logger in selected Java files or packages"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logVariable"
+            name="Log this variable"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logAtPosition"
+            name="Log at this position..."
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logMethod"
+            name="Log this method"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logClass"
+            name="Log this class"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logErrorsMethod"
+            name="Log errors of this method"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logErrorsClass"
+            name="Log errors of this class"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.reapplyMethod"
+            name="Reapply in this method"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.reapplyClass"
+            name="Reapply in this class"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.removeLoggerMethod"
+            name="Remove logger in method"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.removeLoggerClass"
+            name="Remove logger in class"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.substituteMethod"
+            name="Substitute System.out in method"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.substituteClass"
+            name="Substitute System.out in class"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.exchangeFramework"
+            name="Exchange logging framework"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+   </extension>
+
+   <extension point="org.eclipse.ui.handlers">
+      <handler
+            commandId="ro.gs1.log4e2026.commands.declareLogger"
+            class="ro.gs1.log4e2026.handlers.DeclareLoggerHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.insertLogStatement"
+            class="ro.gs1.log4e2026.handlers.InsertLogStatementHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.declareLoggerResource"
+            class="ro.gs1.log4e2026.handlers.DeclareLoggerResourceHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logVariable"
+            class="ro.gs1.log4e2026.handlers.LogVariableHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logAtPosition"
+            class="ro.gs1.log4e2026.handlers.LogAtPositionHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logMethod"
+            class="ro.gs1.log4e2026.handlers.LogMethodHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logClass"
+            class="ro.gs1.log4e2026.handlers.LogClassHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logErrorsMethod"
+            class="ro.gs1.log4e2026.handlers.LogErrorsMethodHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logErrorsClass"
+            class="ro.gs1.log4e2026.handlers.LogErrorsClassHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.reapplyMethod"
+            class="ro.gs1.log4e2026.handlers.ReapplyMethodHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.reapplyClass"
+            class="ro.gs1.log4e2026.handlers.ReapplyClassHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.removeLoggerMethod"
+            class="ro.gs1.log4e2026.handlers.RemoveLoggerMethodHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.removeLoggerClass"
+            class="ro.gs1.log4e2026.handlers.RemoveLoggerClassHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.substituteMethod"
+            class="ro.gs1.log4e2026.handlers.SubstituteMethodHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.substituteClass"
+            class="ro.gs1.log4e2026.handlers.SubstituteClassHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.exchangeFramework"
+            class="ro.gs1.log4e2026.handlers.ExchangeFrameworkHandler">
+      </handler>
+   </extension>
+
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            commandId="ro.gs1.log4e2026.commands.declareLogger"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+D"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.insertLogStatement"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+L"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.logVariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+P"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.logAtPosition"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+O"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.logMethod"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+I"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.logClass"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+U"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.logErrorsMethod"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+R"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.logErrorsClass"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+E"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.reapplyMethod"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+M"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.reapplyClass"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+N"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.substituteMethod"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+S"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+      <key
+            commandId="ro.gs1.log4e2026.commands.substituteClass"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+A"
+            contextId="org.eclipse.jdt.ui.javaEditorScope">
+      </key>
+   </extension>
+
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution locationURI="menu:edit?after=additions">
+         <menu
+               id="ro.gs1.log4e2026.menu"
+               label="Log4E">
+            <command
+                  commandId="ro.gs1.log4e2026.commands.declareLogger"
+                  label="Declare Logger"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.insertLogStatement"
+                  label="Insert Log Statement"
+                  style="push">
+            </command>
+            <separator name="log4e.separator1"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logVariable"
+                  label="Log this variable"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logAtPosition"
+                  label="Log at this position..."
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logMethod"
+                  label="Log this method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logClass"
+                  label="Log this class"
+                  style="push">
+            </command>
+            <separator name="log4e.separator2"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logErrorsMethod"
+                  label="Log errors of this method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logErrorsClass"
+                  label="Log errors of this class"
+                  style="push">
+            </command>
+            <separator name="log4e.separator3"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.reapplyMethod"
+                  label="Reapply in this method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.reapplyClass"
+                  label="Reapply in this class"
+                  style="push">
+            </command>
+            <separator name="log4e.separator4"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.removeLoggerMethod"
+                  label="Remove logger in method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.removeLoggerClass"
+                  label="Remove logger in class"
+                  style="push">
+            </command>
+            <separator name="log4e.separator5"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.substituteMethod"
+                  label="Substitute System.out in method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.substituteClass"
+                  label="Substitute System.out in class"
+                  style="push">
+            </command>
+            <separator name="log4e.separator6"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.exchangeFramework"
+                  label="Exchange logging framework"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+      <!-- Java Editor context menu -->
+      <menuContribution locationURI="popup:#CompilationUnitEditorContext?after=additions">
+         <menu
+               id="ro.gs1.log4e2026.popup.menu"
+               label="Log4E 2026">
+            <command
+                  commandId="ro.gs1.log4e2026.commands.declareLogger"
+                  label="Declare Logger"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.insertLogStatement"
+                  label="Insert Log Statement"
+                  style="push">
+            </command>
+            <separator name="log4e.popup.separator1"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logVariable"
+                  label="Log this variable"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logAtPosition"
+                  label="Log at this position..."
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logMethod"
+                  label="Log this method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logClass"
+                  label="Log this class"
+                  style="push">
+            </command>
+            <separator name="log4e.popup.separator2"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logErrorsMethod"
+                  label="Log errors of this method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logErrorsClass"
+                  label="Log errors of this class"
+                  style="push">
+            </command>
+            <separator name="log4e.popup.separator3"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.reapplyMethod"
+                  label="Reapply in this method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.reapplyClass"
+                  label="Reapply in this class"
+                  style="push">
+            </command>
+            <separator name="log4e.popup.separator4"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.removeLoggerMethod"
+                  label="Remove logger in method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.removeLoggerClass"
+                  label="Remove logger in class"
+                  style="push">
+            </command>
+            <separator name="log4e.popup.separator5"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.substituteMethod"
+                  label="Substitute System.out in method"
+                  style="push">
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.substituteClass"
+                  label="Substitute System.out in class"
+                  style="push">
+            </command>
+            <separator name="log4e.popup.separator6"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.exchangeFramework"
+                  label="Exchange logging framework"
+                  style="push">
+            </command>
+            <visibleWhen checkEnabled="false">
+               <with variable="activeEditorId">
+                  <equals value="org.eclipse.jdt.ui.CompilationUnitEditor"/>
+               </with>
+            </visibleWhen>
+         </menu>
+      </menuContribution>
+      <!-- Package Explorer context menu -->
+      <menuContribution locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+         <menu
+               id="ro.gs1.log4e2026.packageexplorer.menu"
+               label="Log4E">
+            <command
+                  commandId="ro.gs1.log4e2026.commands.declareLoggerResource"
+                  label="Declare Logger"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <or>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.ICompilationUnit"/>
+                     </iterate>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.IPackageFragment"/>
+                     </iterate>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.IPackageFragmentRoot"/>
+                     </iterate>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.IJavaProject"/>
+                     </iterate>
+                  </or>
+               </visibleWhen>
+            </command>
+         </menu>
+      </menuContribution>
+      <!-- Project Explorer context menu -->
+      <menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+         <menu
+               id="ro.gs1.log4e2026.projectexplorer.menu"
+               label="Log4E">
+            <command
+                  commandId="ro.gs1.log4e2026.commands.declareLoggerResource"
+                  label="Declare Logger"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <or>
+                     <iterate ifEmpty="false">
+                        <adapt type="org.eclipse.core.resources.IFile">
+                           <test property="org.eclipse.core.resources.extension" value="java"/>
+                        </adapt>
+                     </iterate>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.ICompilationUnit"/>
+                     </iterate>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.IPackageFragment"/>
+                     </iterate>
+                     <iterate ifEmpty="false">
+                        <instanceof value="org.eclipse.jdt.core.IJavaProject"/>
+                     </iterate>
+                  </or>
+               </visibleWhen>
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            id="ro.gs1.log4e2026.preferences.main"
+            name="Log4E 2026"
+            class="ro.gs1.log4e2026.preferences.Log4ePreferencePage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.declaration"
+            name="Declaration"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.DeclarationPreferencePage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.statements"
+            name="Statements"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.StatementsPreferencePage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.position"
+            name="Position"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.PositionPreferencePage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.format"
+            name="Format"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.FormatPreferencePage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.replace"
+            name="Replace &amp; UI"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.ReplacePreferencePage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.profiles"
+            name="Profiles"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.ProfilePreferencesPage">
+      </page>
+      <page
+            id="ro.gs1.log4e2026.preferences.templates"
+            name="Templates"
+            category="ro.gs1.log4e2026.preferences.main"
+            class="ro.gs1.log4e2026.preferences.TemplatePreferencePage">
+      </page>
+   </extension>
+
+   <extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="ro.gs1.log4e2026.preferences.PreferenceInitializer"/>
+   </extension>
+
+   <extension point="org.eclipse.ui.propertyPages">
+      <page
+            id="ro.gs1.log4e2026.propertyPages.project"
+            name="Log4E 2026"
+            class="ro.gs1.log4e2026.preferences.Log4eProjectPropertyPage">
+         <enabledWhen>
+            <adapt type="org.eclipse.core.resources.IProject">
+               <test property="org.eclipse.core.resources.projectNature"
+                     value="org.eclipse.jdt.core.javanature"/>
+            </adapt>
+         </enabledWhen>
+      </page>
+   </extension>
+</plugin>

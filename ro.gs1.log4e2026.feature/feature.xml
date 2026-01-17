@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="ro.gs1.log4e2026.feature"
+      label="Log4E 2026"
+      version="1.0.0.qualifier"
+      provider-name="GS1 Romania">
+
+   <description>
+      Log4E 2026 - Logging Statement Generator for Eclipse.
+
+      Automatically insert logging statements into your Java code.
+      Supports SLF4J, Log4j 2, and JDK Logging (java.util.logging).
+   </description>
+
+   <copyright>
+      Copyright (c) 2026 GS1 Romania.
+      All rights reserved.
+   </copyright>
+
+   <license url="https://www.eclipse.org/legal/epl-2.0/">
+      Eclipse Public License - v 2.0
+   </license>
+
+   <url>
+      <update label="Log4E 2026 Update Site" url="https://gs1-ro.github.io/log4e2026/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+   </requires>
+
+   <plugin
+         id="ro.gs1.log4e2026"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Log4E 2026 Target Platform">
+    <locations>
+        <!-- Eclipse 2025-12 Release -->
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="https://download.eclipse.org/releases/2025-12"/>
+            <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
+            <unit id="org.eclipse.jdt.feature.group" version="0.0.0"/>
+            <unit id="org.eclipse.pde.feature.group" version="0.0.0"/>
+        </location>
+        <!-- SWTBot -->
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="https://download.eclipse.org/technology/swtbot/releases/latest/"/>
+            <unit id="org.eclipse.swtbot.eclipse.feature.group" version="0.0.0"/>
+            <unit id="org.eclipse.swtbot.ide.feature.group" version="0.0.0"/>
+            <unit id="org.eclipse.swtbot.eclipse.test.junit.feature.group" version="0.0.0"/>
+        </location>
+        <!-- Eclipse Orbit for SLF4J Simple Logger -->
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="https://download.eclipse.org/tools/orbit/simrel/orbit-aggregation/2024-12"/>
+            <unit id="slf4j.simple" version="0.0.0"/>
+        </location>
+    </locations>
+</target>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ro.gs1</groupId>
+        <artifactId>log4e2026-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ro.gs1.log4e2026.tests</artifactId>
+    <packaging>eclipse-test-plugin</packaging>
+
+    <name>Log4E 2026 - Tests</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-surefire-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <configuration>
+                    <useUIHarness>true</useUIHarness>
+                    <useUIThread>false</useUIThread>
+                    <product>org.eclipse.sdk.ide</product>
+                    <application>org.eclipse.ui.ide.workbench</application>
+                    <systemProperties>
+                        <screenshot.dir>${project.build.directory}/screenshots</screenshot.dir>
+                        <!-- Enable SLF4J simple logger for SWTBot debugging -->
+                        <org.slf4j.simpleLogger.defaultLogLevel>warn</org.slf4j.simpleLogger.defaultLogLevel>
+                        <org.slf4j.simpleLogger.log.org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu>debug</org.slf4j.simpleLogger.log.org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu>
+                        <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
+                        <org.slf4j.simpleLogger.dateTimeFormat>HH:mm:ss.SSS</org.slf4j.simpleLogger.dateTimeFormat>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

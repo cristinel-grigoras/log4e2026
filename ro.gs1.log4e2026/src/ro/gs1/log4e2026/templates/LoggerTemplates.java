@@ -15,34 +15,34 @@ public class LoggerTemplates {
     private static final Map<String, LoggerTemplate> TEMPLATES = new HashMap<>();
 
     static {
-        // SLF4J
+        // SLF4J - needs both Logger and LoggerFactory imports
         TEMPLATES.put(SLF4J, new LoggerTemplate(
             SLF4J,
             "SLF4J",
-            "Logger",
-            "LoggerFactory",
+            "org.slf4j.Logger",
+            "org.slf4j.LoggerFactory",
             "getLogger",
             "private static final Logger ${logger} = LoggerFactory.getLogger(${enclosing_type}.class);",
-            "org.slf4j.Logger"
+            "org.slf4j.Logger\norg.slf4j.LoggerFactory"
         ));
 
-        // Log4j 2
+        // Log4j 2 - needs both Logger and LogManager imports
         TEMPLATES.put(LOG4J2, new LoggerTemplate(
             LOG4J2,
             "Log4j 2",
-            "Logger",
-            "LogManager",
+            "org.apache.logging.log4j.Logger",
+            "org.apache.logging.log4j.LogManager",
             "getLogger",
             "private static final Logger ${logger} = LogManager.getLogger(${enclosing_type}.class);",
-            "org.apache.logging.log4j.Logger"
+            "org.apache.logging.log4j.Logger\norg.apache.logging.log4j.LogManager"
         ));
 
-        // JDK Logging (java.util.logging)
+        // JDK Logging (java.util.logging) - only needs Logger import
         TEMPLATES.put(JUL, new LoggerTemplate(
             JUL,
             "JDK Logging",
-            "Logger",
-            "Logger",
+            "java.util.logging.Logger",
+            "java.util.logging.Logger",
             "getLogger",
             "private static final Logger ${logger} = Logger.getLogger(${enclosing_type}.class.getName());",
             "java.util.logging.Logger"

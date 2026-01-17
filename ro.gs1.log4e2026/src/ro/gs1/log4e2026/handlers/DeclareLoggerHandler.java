@@ -1,15 +1,17 @@
 package ro.gs1.log4e2026.handlers;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -82,10 +84,6 @@ public class DeclareLoggerHandler extends AbstractHandler {
             template = LoggerTemplates.getSLF4J();
         }
 
-        // Create AST rewrite
-        AST ast = astRoot.getAST();
-        ASTRewrite rewrite = ASTRewrite.create(ast);
-
         // Find the type declaration
         if (astRoot.types().isEmpty()) {
             return;
@@ -103,37 +101,26 @@ public class DeclareLoggerHandler extends AbstractHandler {
             }
         }
 
+        // Create AST rewrite
+        AST ast = astRoot.getAST();
+        ASTRewrite rewrite = ASTRewrite.create(ast);
+
+        // Add imports
+        addImportsIfNeeded(astRoot, ast, rewrite, template, framework);
+
         // Create the logger field declaration
         String className = primaryType.getElementName();
-        String declaration = template.getDeclaration()
-                .replace("${enclosing_type}", className)
-                .replace("${logger}", loggerName);
+        FieldDeclaration loggerField = createLoggerField(ast, template, loggerName, className);
 
-        // Parse the field declaration
-        ASTParser fieldParser = ASTParser.newParser(AST.getJLSLatest());
-        fieldParser.setSource(("class Temp { " + declaration + " }").toCharArray());
-        fieldParser.setKind(ASTParser.K_COMPILATION_UNIT);
-        CompilationUnit tempCu = (CompilationUnit) fieldParser.createAST(null);
-        TypeDeclaration tempType = (TypeDeclaration) tempCu.types().get(0);
-        FieldDeclaration tempField = tempType.getFields()[0];
+        // Add the field at the beginning of the type body (after any existing fields of same type)
+        ListRewrite bodyRewrite = rewrite.getListRewrite(typeDecl, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 
-        // Copy the field to the target AST
-        FieldDeclaration newField = (FieldDeclaration) ASTNode.copySubtree(ast, tempField);
-
-        // Add the field at the beginning of the type
-        ListRewrite listRewrite = rewrite.getListRewrite(typeDecl, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-        listRewrite.insertFirst(newField, null);
-
-        // Add import if needed
-        String importStatement = template.getImportStatement();
-        if (importStatement != null && !importStatement.isEmpty()) {
-            cu.createImport(importStatement, null, null);
-            // Also import factory class
-            if (framework.equals(LoggerTemplates.SLF4J)) {
-                cu.createImport("org.slf4j.LoggerFactory", null, null);
-            } else if (framework.equals(LoggerTemplates.LOG4J2)) {
-                cu.createImport("org.apache.logging.log4j.LogManager", null, null);
-            }
+        // Find position: insert after existing static fields, before other members
+        int insertIndex = findInsertPosition(typeDecl);
+        if (insertIndex == 0) {
+            bodyRewrite.insertFirst(loggerField, null);
+        } else {
+            bodyRewrite.insertAt(loggerField, insertIndex, null);
         }
 
         // Apply the rewrite
@@ -142,5 +129,105 @@ public class DeclareLoggerHandler extends AbstractHandler {
         edits.apply(document);
 
         Log4e2026Plugin.log("Logger declared successfully");
+    }
+
+    /**
+     * Add import declarations if they don't already exist.
+     */
+    private void addImportsIfNeeded(CompilationUnit astRoot, AST ast, ASTRewrite rewrite,
+            LoggerTemplate template, String framework) {
+
+        String[] imports = template.getImports();
+        if (imports == null || imports.length == 0) {
+            return;
+        }
+
+        ListRewrite importRewrite = rewrite.getListRewrite(astRoot, CompilationUnit.IMPORTS_PROPERTY);
+
+        for (String importName : imports) {
+            if (!hasImport(astRoot, importName)) {
+                ImportDeclaration importDecl = ast.newImportDeclaration();
+                importDecl.setName(ast.newName(importName.split("\\.")));
+                importRewrite.insertLast(importDecl, null);
+            }
+        }
+    }
+
+    /**
+     * Check if an import already exists in the compilation unit.
+     */
+    private boolean hasImport(CompilationUnit astRoot, String importName) {
+        @SuppressWarnings("unchecked")
+        List<ImportDeclaration> imports = astRoot.imports();
+        for (ImportDeclaration imp : imports) {
+            String existingImport = imp.getName().getFullyQualifiedName();
+            if (existingImport.equals(importName)) {
+                return true;
+            }
+            // Check for wildcard imports
+            if (imp.isOnDemand()) {
+                String packageName = importName.substring(0, importName.lastIndexOf('.'));
+                if (existingImport.equals(packageName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create a logger field declaration.
+     */
+    @SuppressWarnings("unchecked")
+    private FieldDeclaration createLoggerField(AST ast, LoggerTemplate template,
+            String loggerName, String className) {
+
+        // Get declaration template and substitute variables
+        String declaration = template.getDeclaration()
+                .replace("${enclosing_type}", className)
+                .replace("${logger}", loggerName);
+
+        // Parse the field declaration using a temporary class
+        ASTParser fieldParser = ASTParser.newParser(AST.getJLSLatest());
+        fieldParser.setSource(("class Temp { " + declaration + " }").toCharArray());
+        fieldParser.setKind(ASTParser.K_COMPILATION_UNIT);
+        CompilationUnit tempCu = (CompilationUnit) fieldParser.createAST(null);
+        TypeDeclaration tempType = (TypeDeclaration) tempCu.types().get(0);
+        FieldDeclaration tempField = tempType.getFields()[0];
+
+        // Copy the field to the target AST
+        return (FieldDeclaration) org.eclipse.jdt.core.dom.ASTNode.copySubtree(ast, tempField);
+    }
+
+    /**
+     * Find the best position to insert the logger field.
+     * Returns 0 to insert at the beginning, or an index after existing static fields.
+     */
+    private int findInsertPosition(TypeDeclaration typeDecl) {
+        FieldDeclaration[] fields = typeDecl.getFields();
+
+        // If no fields exist, insert at position 0
+        if (fields.length == 0) {
+            return 0;
+        }
+
+        // Find the last static field and insert after it
+        int lastStaticFieldIndex = -1;
+        @SuppressWarnings("rawtypes")
+        List bodyDeclarations = typeDecl.bodyDeclarations();
+
+        for (int i = 0; i < bodyDeclarations.size(); i++) {
+            Object decl = bodyDeclarations.get(i);
+            if (decl instanceof FieldDeclaration) {
+                FieldDeclaration field = (FieldDeclaration) decl;
+                // Check if static (modifier 0x8 = Modifier.STATIC)
+                if ((field.getModifiers() & org.eclipse.jdt.core.dom.Modifier.STATIC) != 0) {
+                    lastStaticFieldIndex = i;
+                }
+            }
+        }
+
+        // Insert after last static field, or at beginning if no static fields
+        return lastStaticFieldIndex + 1;
     }
 }

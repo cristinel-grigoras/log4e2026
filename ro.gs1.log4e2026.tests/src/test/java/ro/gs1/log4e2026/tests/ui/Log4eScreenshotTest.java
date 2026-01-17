@@ -3,8 +3,6 @@ package ro.gs1.log4e2026.tests.ui;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -33,8 +31,6 @@ import ro.gs1.log4e2026.tests.util.TimingRule;
 public class Log4eScreenshotTest {
 
     private static final String SCREENSHOT_DIR = System.getProperty("screenshot.dir", "target/screenshots");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-    private static String runId;
     private SWTWorkbenchBot bot;
 
     @Rule
@@ -42,7 +38,6 @@ public class Log4eScreenshotTest {
 
     @BeforeClass
     public static void setUpClass() {
-        runId = LocalDateTime.now().format(TIME_FORMAT);
         File dir = new File(SCREENSHOT_DIR);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -91,7 +86,7 @@ public class Log4eScreenshotTest {
         TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+E");
 
-        String filename = SCREENSHOT_DIR + "/" + runId + "_01_edit_menu.png";
+        String filename = SCREENSHOT_DIR + "/01_edit_menu.png";
         captureWithImport(filename);
         log("after screenshot");
     }
@@ -107,7 +102,7 @@ public class Log4eScreenshotTest {
         TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+E");
 
-        String filename = SCREENSHOT_DIR + "/" + runId + "_02_edit_menu_with_log4e.png";
+        String filename = SCREENSHOT_DIR + "/02_edit_menu_with_log4e.png";
         captureWithImport(filename);
         log("after screenshot");
     }
@@ -123,7 +118,7 @@ public class Log4eScreenshotTest {
         TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+F");
 
-        String filename = SCREENSHOT_DIR + "/" + runId + "_03_file_menu.png";
+        String filename = SCREENSHOT_DIR + "/03_file_menu.png";
         captureWithImport(filename);
         log("after screenshot");
     }
@@ -139,7 +134,7 @@ public class Log4eScreenshotTest {
         TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+W");
 
-        String filename = SCREENSHOT_DIR + "/" + runId + "_04_window_menu.png";
+        String filename = SCREENSHOT_DIR + "/04_window_menu.png";
         captureWithImport(filename);
         log("after screenshot");
     }
@@ -164,7 +159,7 @@ public class Log4eScreenshotTest {
         TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.button("Apply")), 2000);
         log("after Log4E select");
 
-        String filename = SCREENSHOT_DIR + "/" + runId + "_05_log4e_preferences.png";
+        String filename = SCREENSHOT_DIR + "/05_log4e_preferences.png";
         captureWithImport(filename);
         log("after screenshot");
 

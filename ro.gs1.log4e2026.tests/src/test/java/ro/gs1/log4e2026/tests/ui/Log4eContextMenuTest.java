@@ -3,8 +3,6 @@ package ro.gs1.log4e2026.tests.ui;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -39,8 +37,6 @@ public class Log4eContextMenuTest {
 	private static final String SCREENSHOT_DIR = System.getProperty("screenshot.dir", "target/screenshots");
 	private static final String PROJECT_NAME = "TestProject";
 	private static final String CLASS_NAME = "TestClass";
-	private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-	private static String runId;
 
 	private SWTWorkbenchBot bot;
 
@@ -49,7 +45,6 @@ public class Log4eContextMenuTest {
 
 	@BeforeClass
 	public static void setUpClass() {
-		runId = LocalDateTime.now().format(TIME_FORMAT);
 		File dir = new File(SCREENSHOT_DIR);
 		if (!dir.exists()) {
 			dir.mkdirs();
@@ -106,7 +101,7 @@ public class Log4eContextMenuTest {
 		bot.activeShell().setFocus();
 
 		// Capture the wizard selection dialog
-		String wizardFilename = SCREENSHOT_DIR + "/" + runId + "_06a_wizard_selection.png";
+		String wizardFilename = SCREENSHOT_DIR + "/06a_wizard_selection.png";
 		captureWithImport(wizardFilename);
 
 		// Type to filter and find Java Project
@@ -114,7 +109,7 @@ public class Log4eContextMenuTest {
 		log("1.3 after setText filter");
 
 		// Wait for tree to filter and show Java node
-		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 500);
+		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
 		log("1.4 after tree filter");
 
 		// Select first match in tree
@@ -135,7 +130,7 @@ public class Log4eContextMenuTest {
 		log("1.8 after set project name");
 
 		// Capture screenshot
-		String filename = SCREENSHOT_DIR + "/" + runId + "_06_new_java_project.png";
+		String filename = SCREENSHOT_DIR + "/06_new_java_project.png";
 		captureWithImport(filename);
 
 		// Click Finish and wait for project to be created
@@ -209,7 +204,7 @@ public class Log4eContextMenuTest {
 		log("2.9 after class name set");
 
 		// Capture screenshot
-		String filename = SCREENSHOT_DIR + "/" + runId + "_07_new_java_class.png";
+		String filename = SCREENSHOT_DIR + "/07_new_java_class.png";
 		captureWithImport(filename);
 
 		// Click Finish and wait for wizard to close (shell is now "New Java Class")
@@ -284,7 +279,7 @@ public class Log4eContextMenuTest {
 		log("3.3 file saved");
 
 		// Capture screenshot of the editor with methods
-		String filename = SCREENSHOT_DIR + "/" + runId + "_08_class_with_methods.png";
+		String filename = SCREENSHOT_DIR + "/08_class_with_methods.png";
 		captureWithImport(filename);
 		log("3.4 screenshot captured");
 
@@ -420,7 +415,7 @@ public class Log4eContextMenuTest {
 			}
 
 			// Capture screenshot of the dialog
-			String filename = SCREENSHOT_DIR + "/" + runId + "_09_declare_logger_dialog.png";
+			String filename = SCREENSHOT_DIR + "/09_declare_logger_dialog.png";
 			captureWithImport(filename);
 			log("5.4 screenshot captured");
 
@@ -534,7 +529,7 @@ public class Log4eContextMenuTest {
 		}
 
 		// Capture screenshot
-		String filename = SCREENSHOT_DIR + "/" + runId + "_10_insert_log_statement_result.png";
+		String filename = SCREENSHOT_DIR + "/10_insert_log_statement_result.png";
 		captureWithImport(filename);
 		log("6.4 screenshot captured");
 
@@ -617,7 +612,7 @@ public class Log4eContextMenuTest {
 				bot.sleep(500);
 
 				// Capture screenshot of Log4E settings
-				String filename = SCREENSHOT_DIR + "/" + runId + "_11_log4e_project_settings.png";
+				String filename = SCREENSHOT_DIR + "/11_log4e_project_settings.png";
 				captureWithImport(filename);
 				log("7.4 Log4E settings screenshot captured");
 
@@ -629,7 +624,7 @@ public class Log4eContextMenuTest {
 
 		if (!foundLog4e) {
 			System.out.println("\nLog4E not found in project properties, capturing current view");
-			String filename = SCREENSHOT_DIR + "/" + runId + "_11_project_properties.png";
+			String filename = SCREENSHOT_DIR + "/11_project_properties.png";
 			captureWithImport(filename);
 		}
 
@@ -686,7 +681,7 @@ public class Log4eContextMenuTest {
 		log("8.3 filtered for Log4E");
 
 		// Capture screenshot of filtered preferences
-		String filename1 = SCREENSHOT_DIR + "/" + runId + "_12_preferences_log4e_filter.png";
+		String filename1 = SCREENSHOT_DIR + "/12_preferences_log4e_filter.png";
 		captureWithImport(filename1);
 
 		// List all visible items after filtering
@@ -715,7 +710,7 @@ public class Log4eContextMenuTest {
 				System.out.println("\nSelected: " + treeItem.getText());
 
 				// Capture main Log4E preferences page
-				String filename2 = SCREENSHOT_DIR + "/" + runId + "_13_log4e_preferences_main.png";
+				String filename2 = SCREENSHOT_DIR + "/13_log4e_preferences_main.png";
 				captureWithImport(filename2);
 				log("8.4 Log4E main preferences captured");
 
@@ -729,7 +724,7 @@ public class Log4eContextMenuTest {
 
 						// Capture each sub-page
 						String safeName = subPage.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
-						String filename3 = SCREENSHOT_DIR + "/" + runId + "_14_log4e_" + safeName + ".png";
+						String filename3 = SCREENSHOT_DIR + "/14_log4e_" + safeName + ".png";
 						captureWithImport(filename3);
 					}
 				} catch (Exception e) {

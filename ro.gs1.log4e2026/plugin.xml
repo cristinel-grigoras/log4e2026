@@ -333,22 +333,34 @@
                   commandId="ro.gs1.log4e2026.commands.insertLogStatement"
                   label="Insert Log Statement"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <separator name="log4e.popup.separator1"/>
             <command
                   commandId="ro.gs1.log4e2026.commands.logVariable"
                   label="Log this variable"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logAtPosition"
                   label="Log at this position..."
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logMethod"
                   label="Log this method"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logClass"
@@ -360,6 +372,9 @@
                   commandId="ro.gs1.log4e2026.commands.logErrorsMethod"
                   label="Log errors of this method"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logErrorsClass"
@@ -371,6 +386,9 @@
                   commandId="ro.gs1.log4e2026.commands.reapplyMethod"
                   label="Reapply in this method"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.reapplyClass"
@@ -382,6 +400,9 @@
                   commandId="ro.gs1.log4e2026.commands.removeLoggerMethod"
                   label="Remove logger in method"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.removeLoggerClass"
@@ -393,6 +414,9 @@
                   commandId="ro.gs1.log4e2026.commands.substituteMethod"
                   label="Substitute System.out in method"
                   style="push">
+               <visibleWhen checkEnabled="false">
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </visibleWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.substituteClass"
@@ -470,6 +494,16 @@
             </command>
          </menu>
       </menuContribution>
+   </extension>
+
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            id="ro.gs1.log4e2026.propertyTester"
+            type="java.lang.Object"
+            namespace="ro.gs1.log4e2026"
+            properties="isCursorInMethod,isCursorOnVariable,isValidInsertPosition,isInJavaEditor"
+            class="ro.gs1.log4e2026.handlers.Log4ePropertyTester">
+      </propertyTester>
    </extension>
 
    <extension point="org.eclipse.ui.preferencePages">

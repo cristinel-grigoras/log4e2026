@@ -3,8 +3,6 @@ package ro.gs1.log4e2026.tests.ui;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -34,9 +32,7 @@ import ro.gs1.log4e2026.tests.util.TimingRule;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PreferencePagesTest {
 
-    private static final String RUN_ID = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-    // Screenshots directory from Maven property ${project.build.directory}/screenshots/prefs
-    private static final String SCREENSHOT_DIR = System.getProperty("screenshot.dir", "target/screenshots") + "/prefs";
+    private static final String SCREENSHOT_DIR = System.getProperty("screenshot.dir", "target/screenshots");
     private static SWTWorkbenchBot bot;
     private static boolean preferencesOpen = false;
 
@@ -90,21 +86,14 @@ public class PreferencePagesTest {
         TestTimingUtil.log(bot, "openPreferences start");
         // Ensure we have an active shell
         bot.shells()[0].setFocus();
-        int shellCount = bot.shells().length;
         TestTimingUtil.log(bot, "after setFocus");
 
-        // Open Window menu - wait for menu shell to appear
-        bot.activeShell().pressShortcut(SWT.ALT, 'w');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
-        TestTimingUtil.log(bot, "after Alt+W");
-
-        // Navigate to Preferences (last item) and open
-        bot.activeShell().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance(SWT.END));
-        bot.activeShell().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance(SWT.CR));
-        TestTimingUtil.log(bot, "after END+CR");
+        // Use menu click instead of keyboard shortcuts (more reliable)
+        bot.menu("Window").menu("Preferences...").click();
+        TestTimingUtil.log(bot, "after menu click");
 
         // Wait for Preferences dialog to appear
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"));
+        bot.waitUntil(Conditions.shellIsActive("Preferences"), 5000);
         TestTimingUtil.log(bot, "Preferences open");
         preferencesOpen = true;
     }
@@ -145,7 +134,7 @@ public class PreferencePagesTest {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            String filename = SCREENSHOT_DIR + "/" + RUN_ID + "_" + name + ".png";
+            String filename = SCREENSHOT_DIR + "/" + name + ".png";
             // Use import with explicit PNG format
             ProcessBuilder pb = new ProcessBuilder("import", "-window", "root", "PNG:" + filename);
             pb.inheritIO();

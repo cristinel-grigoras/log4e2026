@@ -15,6 +15,10 @@
 
     <name>Log4E 2026 - Tests</name>
 
+    <properties>
+        <screenshot.dir>${project.build.directory}/screenshots</screenshot.dir>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -27,7 +31,7 @@
                     <product>org.eclipse.sdk.ide</product>
                     <application>org.eclipse.ui.ide.workbench</application>
                     <systemProperties>
-                        <screenshot.dir>${project.build.directory}/screenshots</screenshot.dir>
+                        <screenshot.dir>${screenshot.dir}</screenshot.dir>
                         <!-- Enable SLF4J simple logger for SWTBot debugging -->
                         <org.slf4j.simpleLogger.defaultLogLevel>warn</org.slf4j.simpleLogger.defaultLogLevel>
                         <org.slf4j.simpleLogger.log.org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu>debug</org.slf4j.simpleLogger.log.org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu>

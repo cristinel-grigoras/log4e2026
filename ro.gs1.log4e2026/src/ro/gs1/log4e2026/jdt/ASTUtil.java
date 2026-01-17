@@ -559,4 +559,132 @@ public final class ASTUtil {
         SingleVariableDeclaration exception = catchClause.getException();
         return getType(exception);
     }
+
+    /**
+     * Finds the method declaration containing the selection.
+     * The selection must be inside the method body.
+     *
+     * @param cu the compilation unit
+     * @param selectionOffset the selection start offset
+     * @param selectionLength the selection length
+     * @return the method declaration or null if not inside a method body
+     */
+    public static MethodDeclaration findSelectedMethod(CompilationUnit cu, int selectionOffset, int selectionLength) {
+        final MethodDeclaration[] result = new MethodDeclaration[1];
+        cu.accept(new ASTVisitor() {
+            @Override
+            public boolean visit(MethodDeclaration methodDeclaration) {
+                if (methodDeclaration == null) {
+                    return true;
+                }
+                Block body = methodDeclaration.getBody();
+                if (body != null) {
+                    int start = methodDeclaration.getStartPosition();
+                    int end = body.getStartPosition() + body.getLength();
+                    if (start <= selectionOffset && selectionOffset + selectionLength <= end) {
+                        result[0] = methodDeclaration;
+                    }
+                }
+                return true;
+            }
+        });
+        return result[0];
+    }
+
+    /**
+     * Checks if the cursor is at a valid position for inserting a log statement.
+     * The position must be inside a block and not in the middle of a statement.
+     *
+     * @param cu the compilation unit
+     * @param selectionOffset the selection start offset
+     * @param selectionLength the selection length
+     * @return true if position is valid for insertion
+     */
+    public static boolean isValidInsertPosition(CompilationUnit cu, int selectionOffset, int selectionLength) {
+        int selectedPosition = selectionOffset + selectionLength;
+
+        // Find the innermost block containing the position
+        Block mostInnerBlock = findMostInnerBlock(cu, selectedPosition);
+        if (mostInnerBlock == null) {
+            return false;
+        }
+
+        // Check if we're not in the middle of a statement
+        for (Object obj : mostInnerBlock.statements()) {
+            Statement statement = (Statement) obj;
+            int start = statement.getStartPosition();
+            int end = start + statement.getLength();
+            // If position is strictly inside a statement (not at boundaries), it's invalid
+            if (selectedPosition > start && selectedPosition < end) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Finds the innermost block containing the given position.
+     */
+    public static Block findMostInnerBlock(CompilationUnit cu, int position) {
+        final Block[] result = new Block[1];
+        cu.accept(new ASTVisitor() {
+            @Override
+            public boolean visit(Block block) {
+                int start = block.getStartPosition();
+                int end = start + block.getLength();
+                if (start <= position && position < end) {
+                    result[0] = block;
+                    return true; // Continue to find inner blocks
+                }
+                return false; // No need to visit children outside position
+            }
+        });
+        return result[0];
+    }
+
+    /**
+     * Checks if cursor is inside a method body (for menu enablement).
+     */
+    public static boolean isCursorInMethod(CompilationUnit cu, int offset) {
+        return findSelectedMethod(cu, offset, 0) != null;
+    }
+
+    /**
+     * Checks if cursor is on or near a variable (for Log Variable menu enablement).
+     */
+    public static boolean isCursorOnVariable(CompilationUnit cu, int offset) {
+        ASTNode node = findNodeAtOffset(cu, offset);
+        if (node == null) {
+            return false;
+        }
+        // Check if it's a simple name (variable reference)
+        if (node instanceof SimpleName) {
+            return true;
+        }
+        // Check parent for variable declaration
+        ASTNode parent = node.getParent();
+        return parent instanceof VariableDeclarationFragment
+            || parent instanceof SingleVariableDeclaration;
+    }
+
+    /**
+     * Finds the AST node at a specific offset.
+     */
+    public static ASTNode findNodeAtOffset(CompilationUnit cu, int offset) {
+        final ASTNode[] result = new ASTNode[1];
+        cu.accept(new ASTVisitor() {
+            @Override
+            public void preVisit(ASTNode node) {
+                int start = node.getStartPosition();
+                int end = start + node.getLength();
+                if (offset >= start && offset <= end) {
+                    // Keep the smallest/most specific node
+                    if (result[0] == null || node.getLength() < result[0].getLength()) {
+                        result[0] = node;
+                    }
+                }
+            }
+        });
+        return result[0];
+    }
 }

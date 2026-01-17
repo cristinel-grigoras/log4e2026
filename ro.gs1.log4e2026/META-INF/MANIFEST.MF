@@ -7,6 +7,7 @@ Bundle-Activator: ro.gs1.log4e2026.Log4e2026Plugin
 Bundle-Vendor: GS1 Romania
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ org.eclipse.core.expressions,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  org.eclipse.jface.text,

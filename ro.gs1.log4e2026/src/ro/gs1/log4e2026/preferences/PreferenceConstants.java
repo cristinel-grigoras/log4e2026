@@ -7,12 +7,14 @@ public class PreferenceConstants {
 
     // Logging framework
     public static final String P_LOGGING_FRAMEWORK = "loggingFramework";
+    public static final String P_LOGGER_PROFILE = "loggerProfile";
     public static final String P_LOGGER_NAME = "loggerName";
     public static final String P_LOGGER_STATIC = "loggerStatic";
     public static final String P_LOGGER_FINAL = "loggerFinal";
 
     // Default values
     public static final String DEFAULT_FRAMEWORK = "SLF4J";
+    public static final String DEFAULT_PROFILE = "SLF4J";
     public static final String DEFAULT_LOGGER_NAME = "logger";
     public static final boolean DEFAULT_LOGGER_STATIC = true;
     public static final boolean DEFAULT_LOGGER_FINAL = true;

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profiles version="1">
+    <!-- SLF4J Profile -->
+    <profile id="BuiltIn" title="SLF4J" name="slf4j" version="1">
+        <setting id="LOGGER_TYPE" type="String">org.slf4j.Logger</setting>
+        <setting id="LOGGER_FACTORY" type="String">org.slf4j.LoggerFactory</setting>
+        <setting id="LOGGER_FACTORY_METHOD" type="String">getLogger</setting>
+        <setting id="LOGGER_DECLARATION" type="String">private static final Logger ${logger} = LoggerFactory.getLogger(${enclosing_type}.class);</setting>
+        <setting id="LOGGER_IMPORTS" type="String">org.slf4j.Logger
+org.slf4j.LoggerFactory</setting>
+        <setting id="LOG_METHOD_TRACE" type="String">trace</setting>
+        <setting id="LOG_METHOD_DEBUG" type="String">debug</setting>
+        <setting id="LOG_METHOD_INFO" type="String">info</setting>
+        <setting id="LOG_METHOD_WARN" type="String">warn</setting>
+        <setting id="LOG_METHOD_ERROR" type="String">error</setting>
+        <setting id="LOG_PATTERN_START" type="String">${logger}.${level}("${enclosing_method}() - start");</setting>
+        <setting id="LOG_PATTERN_END" type="String">${logger}.${level}("${enclosing_method}() - end");</setting>
+        <setting id="LOG_PATTERN_CATCH" type="String">${logger}.error("${enclosing_method}() - ${exception}", ${exception});</setting>
+        <setting id="LOG_PATTERN_VARIABLE" type="String">${logger}.${level}("${variable}={}", ${variable});</setting>
+        <setting id="LOG_LEVEL_START" type="String">debug</setting>
+        <setting id="LOG_LEVEL_END" type="String">debug</setting>
+        <setting id="LOG_LEVEL_CATCH" type="String">error</setting>
+        <setting id="LOG_LEVEL_DEFAULT" type="String">debug</setting>
+        <setting id="HAS_FATAL" type="Boolean">false</setting>
+        <setting id="HAS_FINEST" type="Boolean">false</setting>
+        <setting id="HAS_FINER" type="Boolean">false</setting>
+    </profile>
+
+    <!-- Log4j 2 Profile -->
+    <profile id="BuiltIn" title="Log4j 2" name="log4j2" version="1">
+        <setting id="LOGGER_TYPE" type="String">org.apache.logging.log4j.Logger</setting>
+        <setting id="LOGGER_FACTORY" type="String">org.apache.logging.log4j.LogManager</setting>
+        <setting id="LOGGER_FACTORY_METHOD" type="String">getLogger</setting>
+        <setting id="LOGGER_DECLARATION" type="String">private static final Logger ${logger} = LogManager.getLogger(${enclosing_type}.class);</setting>
+        <setting id="LOGGER_IMPORTS" type="String">org.apache.logging.log4j.Logger
+org.apache.logging.log4j.LogManager</setting>
+        <setting id="LOG_METHOD_TRACE" type="String">trace</setting>
+        <setting id="LOG_METHOD_DEBUG" type="String">debug</setting>
+        <setting id="LOG_METHOD_INFO" type="String">info</setting>
+        <setting id="LOG_METHOD_WARN" type="String">warn</setting>
+        <setting id="LOG_METHOD_ERROR" type="String">error</setting>
+        <setting id="LOG_METHOD_FATAL" type="String">fatal</setting>
+        <setting id="LOG_PATTERN_START" type="String">${logger}.${level}("${enclosing_method}() - start");</setting>
+        <setting id="LOG_PATTERN_END" type="String">${logger}.${level}("${enclosing_method}() - end");</setting>
+        <setting id="LOG_PATTERN_CATCH" type="String">${logger}.error("${enclosing_method}() - ${exception}", ${exception});</setting>
+        <setting id="LOG_PATTERN_VARIABLE" type="String">${logger}.${level}("${variable}={}", ${variable});</setting>
+        <setting id="LOG_LEVEL_START" type="String">debug</setting>
+        <setting id="LOG_LEVEL_END" type="String">debug</setting>
+        <setting id="LOG_LEVEL_CATCH" type="String">error</setting>
+        <setting id="LOG_LEVEL_DEFAULT" type="String">debug</setting>
+        <setting id="HAS_FATAL" type="Boolean">true</setting>
+        <setting id="HAS_FINEST" type="Boolean">false</setting>
+        <setting id="HAS_FINER" type="Boolean">false</setting>
+    </profile>
+
+    <!-- JDK Logging (java.util.logging) Profile -->
+    <profile id="BuiltIn" title="JDK Logging" name="jul" version="1">
+        <setting id="LOGGER_TYPE" type="String">java.util.logging.Logger</setting>
+        <setting id="LOGGER_FACTORY" type="String">java.util.logging.Logger</setting>
+        <setting id="LOGGER_FACTORY_METHOD" type="String">getLogger</setting>
+        <setting id="LOGGER_DECLARATION" type="String">private static final Logger ${logger} = Logger.getLogger(${enclosing_type}.class.getName());</setting>
+        <setting id="LOGGER_IMPORTS" type="String">java.util.logging.Logger</setting>
+        <setting id="LOG_METHOD_FINEST" type="String">finest</setting>
+        <setting id="LOG_METHOD_FINER" type="String">finer</setting>
+        <setting id="LOG_METHOD_FINE" type="String">fine</setting>
+        <setting id="LOG_METHOD_INFO" type="String">info</setting>
+        <setting id="LOG_METHOD_WARNING" type="String">warning</setting>
+        <setting id="LOG_METHOD_SEVERE" type="String">severe</setting>
+        <setting id="LOG_PATTERN_START" type="String">${logger}.${level}("${enclosing_method}() - start");</setting>
+        <setting id="LOG_PATTERN_END" type="String">${logger}.${level}("${enclosing_method}() - end");</setting>
+        <setting id="LOG_PATTERN_CATCH" type="String">${logger}.severe("${enclosing_method}() - " + ${exception}.getMessage());</setting>
+        <setting id="LOG_PATTERN_VARIABLE" type="String">${logger}.${level}("${variable}=" + ${variable});</setting>
+        <setting id="LOG_LEVEL_START" type="String">fine</setting>
+        <setting id="LOG_LEVEL_END" type="String">fine</setting>
+        <setting id="LOG_LEVEL_CATCH" type="String">severe</setting>
+        <setting id="LOG_LEVEL_DEFAULT" type="String">info</setting>
+        <setting id="HAS_FATAL" type="Boolean">false</setting>
+        <setting id="HAS_FINEST" type="Boolean">true</setting>
+        <setting id="HAS_FINER" type="Boolean">true</setting>
+    </profile>
+</profiles>

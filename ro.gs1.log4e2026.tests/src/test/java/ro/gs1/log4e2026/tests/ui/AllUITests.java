@@ -10,7 +10,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
     Log4ePreferencePageUITest.class,
-    Log4eMenuUITest.class
+    Log4eMenuUITest.class,
+    TemplateManagementUITest.class
 })
 public class AllUITests {
 }

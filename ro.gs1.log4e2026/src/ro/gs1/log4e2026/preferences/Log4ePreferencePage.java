@@ -74,6 +74,13 @@ public class Log4ePreferencePage extends FieldEditorPreferencePage implements IW
             "Include method name in log messages",
             getFieldEditorParent()
         ));
+
+        // User interaction
+        addField(new BooleanFieldEditor(
+            PreferenceConstants.P_SHOW_EXCHANGE_DIALOG,
+            "Show confirmation dialog when exchanging frameworks",
+            getFieldEditorParent()
+        ));
     }
 
     @Override

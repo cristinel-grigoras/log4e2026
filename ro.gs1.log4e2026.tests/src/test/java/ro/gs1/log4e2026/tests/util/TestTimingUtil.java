@@ -361,4 +361,28 @@ public class TestTimingUtil {
     public static void clear() {
         timings.clear();
     }
+
+    /**
+     * Focus the workbench shell (not internal Eclipse shells like "PartRenderingEngine's limbo").
+     * This should be called in setUp() instead of bot.shells()[0].setFocus().
+     */
+    public static void focusWorkbenchShell(SWTWorkbenchBot bot) {
+        for (org.eclipse.swtbot.swt.finder.widgets.SWTBotShell shell : bot.shells()) {
+            try {
+                String text = shell.getText();
+                if (text != null && !text.isEmpty() && !text.contains("limbo")) {
+                    shell.setFocus();
+                    return;
+                }
+            } catch (Exception e) {
+                // Continue to next shell
+            }
+        }
+        // Fallback: try shells()[0] if nothing else works
+        try {
+            bot.shells()[0].setFocus();
+        } catch (Exception e) {
+            // Ignore
+        }
+    }
 }

@@ -211,6 +211,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer impleme
         store.setDefault(PreferenceConstants.P_DELIMITER, PreferenceConstants.DEFAULT_DELIMITER);
         store.setDefault(PreferenceConstants.P_INCLUDE_CLASS_NAME, true);
         store.setDefault(PreferenceConstants.P_INCLUDE_METHOD_NAME, true);
+        store.setDefault(PreferenceConstants.P_SHOW_EXCHANGE_DIALOG, PreferenceConstants.DEFAULT_SHOW_EXCHANGE_DIALOG);
         store.setDefault(PreferenceConstants.P_LOG_LEVEL_TRACE, true);
         store.setDefault(PreferenceConstants.P_LOG_LEVEL_DEBUG, true);
         store.setDefault(PreferenceConstants.P_LOG_LEVEL_INFO, true);

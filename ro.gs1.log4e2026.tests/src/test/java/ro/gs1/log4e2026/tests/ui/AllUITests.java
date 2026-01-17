@@ -11,7 +11,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
     Log4ePreferencePageUITest.class,
     Log4eMenuUITest.class,
-    TemplateManagementUITest.class
+    TemplateManagementUITest.class,
+    ProfileDefaultSelectionUITest.class
 })
 public class AllUITests {
 }

@@ -236,6 +236,11 @@
          <menu
                id="ro.gs1.log4e2026.menu"
                label="Log4E">
+            <visibleWhen checkEnabled="false">
+               <with variable="activeEditorId">
+                  <equals value="org.eclipse.jdt.ui.CompilationUnitEditor"/>
+               </with>
+            </visibleWhen>
             <command
                   commandId="ro.gs1.log4e2026.commands.declareLogger"
                   label="Declare Logger"
@@ -245,22 +250,34 @@
                   commandId="ro.gs1.log4e2026.commands.insertLogStatement"
                   label="Insert Log Statement"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <separator name="log4e.separator1"/>
             <command
                   commandId="ro.gs1.log4e2026.commands.logVariable"
                   label="Log this variable"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorOnVariable"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logAtPosition"
                   label="Log at this position..."
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logMethod"
                   label="Log this method"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logClass"
@@ -272,6 +289,9 @@
                   commandId="ro.gs1.log4e2026.commands.logErrorsMethod"
                   label="Log errors of this method"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.logErrorsClass"
@@ -283,6 +303,9 @@
                   commandId="ro.gs1.log4e2026.commands.reapplyMethod"
                   label="Reapply in this method"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.reapplyClass"
@@ -294,6 +317,9 @@
                   commandId="ro.gs1.log4e2026.commands.removeLoggerMethod"
                   label="Remove logger in method"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.removeLoggerClass"
@@ -305,6 +331,9 @@
                   commandId="ro.gs1.log4e2026.commands.substituteMethod"
                   label="Substitute System.out in method"
                   style="push">
+               <enabledWhen>
+                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+               </enabledWhen>
             </command>
             <command
                   commandId="ro.gs1.log4e2026.commands.substituteClass"
@@ -343,7 +372,7 @@
                   label="Log this variable"
                   style="push">
                <visibleWhen checkEnabled="false">
-                  <test property="ro.gs1.log4e2026.isCursorInMethod"/>
+                  <test property="ro.gs1.log4e2026.isCursorOnVariable"/>
                </visibleWhen>
             </command>
             <command

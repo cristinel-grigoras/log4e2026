@@ -36,6 +36,10 @@ public class PreferenceConstants {
     public static final String P_INCLUDE_CLASS_NAME = "includeClassName";
     public static final String P_INCLUDE_METHOD_NAME = "includeMethodName";
 
+    // User Interaction
+    public static final String P_SHOW_EXCHANGE_DIALOG = "showExchangeDialog";
+    public static final boolean DEFAULT_SHOW_EXCHANGE_DIALOG = true;
+
     // Default templates
     public static final String DEFAULT_TEMPLATE_ENTRY = "${logger}.debug(\"${enclosing_method}() - start\");";
     public static final String DEFAULT_TEMPLATE_EXIT = "${logger}.debug(\"${enclosing_method}() - end\");";

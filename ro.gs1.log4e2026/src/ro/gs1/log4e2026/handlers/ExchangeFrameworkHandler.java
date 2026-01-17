@@ -1,23 +1,23 @@
 package ro.gs1.log4e2026.handlers;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -27,7 +27,9 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import ro.gs1.log4e2026.Log4e2026Plugin;
+import ro.gs1.log4e2026.dialogs.ExchangeFrameworkDialog;
 import ro.gs1.log4e2026.jdt.ASTUtil;
+import ro.gs1.log4e2026.preferences.PreferenceConstants;
 import ro.gs1.log4e2026.templates.LoggerTemplate;
 import ro.gs1.log4e2026.templates.LoggerTemplates;
 
@@ -59,7 +61,46 @@ public class ExchangeFrameworkHandler extends AbstractHandler {
         }
 
         try {
-            exchangeFramework(cu, textEditor);
+            // Detect current framework first
+            ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+            parser.setSource(cu);
+            parser.setResolveBindings(true);
+            CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+            String currentFramework = detectFramework(astRoot);
+
+            if (currentFramework == null) {
+                Log4e2026Plugin.logWarning("Could not detect logging framework");
+                return null;
+            }
+
+            String targetFramework;
+
+            // Check if dialog should be shown
+            boolean showDialog = Log4e2026Plugin.getPreferences()
+                    .getBoolean(PreferenceConstants.P_SHOW_EXCHANGE_DIALOG);
+
+            if (showDialog) {
+                Shell shell = Display.getCurrent().getActiveShell();
+                ExchangeFrameworkDialog dialog = new ExchangeFrameworkDialog(shell, currentFramework);
+                if (dialog.open() != IDialogConstants.OK_ID) {
+                    return null; // User cancelled
+                }
+                targetFramework = dialog.getTargetFramework();
+            } else {
+                // Use preference setting
+                targetFramework = Log4e2026Plugin.getPreferences().getString(
+                        PreferenceConstants.P_LOGGING_FRAMEWORK);
+                if (targetFramework == null || targetFramework.isEmpty()) {
+                    targetFramework = LoggerTemplates.SLF4J;
+                }
+            }
+
+            if (currentFramework.equals(targetFramework)) {
+                Log4e2026Plugin.log("Already using " + targetFramework + " framework");
+                return null;
+            }
+
+            exchangeFramework(cu, textEditor, currentFramework, targetFramework);
         } catch (Exception e) {
             Log4e2026Plugin.logError("Failed to exchange framework", e);
             throw new ExecutionException("Failed to exchange framework", e);
@@ -68,30 +109,13 @@ public class ExchangeFrameworkHandler extends AbstractHandler {
         return null;
     }
 
-    private void exchangeFramework(ICompilationUnit cu, ITextEditor editor) throws Exception {
+    private void exchangeFramework(ICompilationUnit cu, ITextEditor editor,
+                                    String currentFramework, String targetFramework) throws Exception {
         // Parse the compilation unit
         ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
         parser.setSource(cu);
         parser.setResolveBindings(true);
         CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
-
-        // Detect current framework
-        String currentFramework = detectFramework(astRoot);
-        if (currentFramework == null) {
-            Log4e2026Plugin.logWarning("Could not detect logging framework");
-            return;
-        }
-
-        // Get target framework from preferences
-        String targetFramework = Log4e2026Plugin.getPreferences().getString("loggingFramework");
-        if (targetFramework == null || targetFramework.isEmpty()) {
-            targetFramework = LoggerTemplates.SLF4J;
-        }
-
-        if (currentFramework.equals(targetFramework)) {
-            Log4e2026Plugin.log("Already using " + targetFramework + " framework");
-            return;
-        }
 
         // Get the target template
         LoggerTemplate targetTemplate = LoggerTemplates.getTemplate(targetFramework);
@@ -159,7 +183,13 @@ public class ExchangeFrameworkHandler extends AbstractHandler {
             }
         }
 
-        // Add new imports (will be done via ICompilationUnit.createImport later)
+        // Add new imports
+        ListRewrite importRewrite = rewrite.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
+        for (String importClass : targetTemplate.getImports()) {
+            ImportDeclaration newImport = ast.newImportDeclaration();
+            newImport.setName(ast.newName(importClass));
+            importRewrite.insertLast(newImport, null);
+        }
     }
 
     @SuppressWarnings("unchecked")

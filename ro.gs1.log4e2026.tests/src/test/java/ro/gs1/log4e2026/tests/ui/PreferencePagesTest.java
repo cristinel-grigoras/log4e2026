@@ -85,7 +85,7 @@ public class PreferencePagesTest {
     private static void openPreferences() throws Exception {
         TestTimingUtil.log(bot, "openPreferences start");
         // Ensure we have an active shell
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         TestTimingUtil.log(bot, "after setFocus");
 
         // Use menu click instead of keyboard shortcuts (more reliable)

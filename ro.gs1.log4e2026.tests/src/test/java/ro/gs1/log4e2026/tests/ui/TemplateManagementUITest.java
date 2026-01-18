@@ -64,7 +64,7 @@ public class TemplateManagementUITest {
         } catch (Exception e) {
             // Ignore if not found
         }
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
     }
 
     @After

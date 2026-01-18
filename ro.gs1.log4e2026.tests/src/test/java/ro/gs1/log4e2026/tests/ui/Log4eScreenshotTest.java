@@ -78,7 +78,7 @@ public class Log4eScreenshotTest {
     @Test
     public void captureWorkbenchWithEditMenu() throws Exception {
         log("start");
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         int shellCount = bot.shells().length;
         log("after setFocus");
 
@@ -94,7 +94,7 @@ public class Log4eScreenshotTest {
     @Test
     public void captureLog4eInEditMenu() throws Exception {
         log("start");
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         int shellCount = bot.shells().length;
         log("after setFocus");
 
@@ -110,7 +110,7 @@ public class Log4eScreenshotTest {
     @Test
     public void captureFileMenu() throws Exception {
         log("start");
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         int shellCount = bot.shells().length;
         log("after setFocus");
 
@@ -126,7 +126,7 @@ public class Log4eScreenshotTest {
     @Test
     public void captureWindowMenu() throws Exception {
         log("start");
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         int shellCount = bot.shells().length;
         log("after setFocus");
 
@@ -142,7 +142,7 @@ public class Log4eScreenshotTest {
     @Test
     public void captureLog4ePreferencePage() throws Exception {
         log("start");
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         int shellCount = bot.shells().length;
         log("after setFocus");
 

@@ -14,12 +14,23 @@ import ro.gs1.log4e2026.core.LogLevel;
 import ro.gs1.log4e2026.jdt.ASTUtil;
 import ro.gs1.log4e2026.operations.LoggingOperation;
 import ro.gs1.log4e2026.operations.OperationContext;
+import ro.gs1.log4e2026.preferences.PreferenceConstants;
 
 /**
  * Handler for substituting System.out/err.println with logging in the entire class.
  * Keyboard shortcut: Ctrl+Alt+A
  */
 public class SubstituteClassHandler extends BaseLogHandler {
+
+    @Override
+    protected String getWizardPreferenceKey() {
+        return PreferenceConstants.P_WIZARD_REPLACE_CLASS;
+    }
+
+    @Override
+    protected String getWizardTitle() {
+        return "Replace in Class";
+    }
 
     @Override
     protected void executeOperation(OperationContext context, String selectedText) throws Exception {

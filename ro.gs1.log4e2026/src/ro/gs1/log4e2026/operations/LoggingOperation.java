@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import ro.gs1.log4e2026.Log4e2026Plugin;
 import ro.gs1.log4e2026.core.LogLevel;
 import ro.gs1.log4e2026.jdt.ASTUtil;
+import ro.gs1.log4e2026.preferences.ProjectPreferences;
 import ro.gs1.log4e2026.templates.LoggerTemplate;
 import ro.gs1.log4e2026.templates.LoggerTemplates;
 
@@ -37,14 +38,21 @@ public class LoggingOperation {
     }
 
     private void initializeFromPreferences() {
-        String framework = Log4e2026Plugin.getPreferences()
-                .getString("loggingFramework");
+        // Get project-aware preferences
+        ProjectPreferences prefs = null;
+        if (context.getCompilationUnit() != null) {
+            prefs = Log4e2026Plugin.getProjectPreferences(
+                    context.getCompilationUnit().getJavaProject().getProject());
+        } else {
+            prefs = Log4e2026Plugin.getProjectPreferences(null);
+        }
+
+        String framework = prefs.getLoggingFramework();
         this.template = LoggerTemplates.getTemplate(framework);
         if (this.template == null) {
             this.template = LoggerTemplates.getSLF4J();
         }
-        this.loggerName = Log4e2026Plugin.getPreferences()
-                .getString("loggerName");
+        this.loggerName = prefs.getLoggerName();
         if (this.loggerName == null || this.loggerName.isEmpty()) {
             this.loggerName = "logger";
         }

@@ -17,9 +17,10 @@ public class LoggerTemplatesTest {
         LoggerTemplate template = LoggerTemplates.getSLF4J();
         assertNotNull(template);
         assertEquals("SLF4J", template.getId());
-        assertEquals("Logger", template.getLoggerClass());
-        assertEquals("LoggerFactory", template.getFactoryClass());
+        assertEquals("org.slf4j.Logger", template.getLoggerClass());
+        assertEquals("org.slf4j.LoggerFactory", template.getFactoryClass());
         assertEquals("getLogger", template.getFactoryMethod());
+        assertEquals("Logger", template.getLoggerType());
         assertTrue(template.getImportStatement().contains("org.slf4j"));
     }
 
@@ -28,9 +29,10 @@ public class LoggerTemplatesTest {
         LoggerTemplate template = LoggerTemplates.getLog4j2();
         assertNotNull(template);
         assertEquals("LOG4J2", template.getId());
-        assertEquals("Logger", template.getLoggerClass());
-        assertEquals("LogManager", template.getFactoryClass());
+        assertEquals("org.apache.logging.log4j.Logger", template.getLoggerClass());
+        assertEquals("org.apache.logging.log4j.LogManager", template.getFactoryClass());
         assertEquals("getLogger", template.getFactoryMethod());
+        assertEquals("Logger", template.getLoggerType());
         assertTrue(template.getImportStatement().contains("org.apache.logging.log4j"));
     }
 
@@ -39,9 +41,10 @@ public class LoggerTemplatesTest {
         LoggerTemplate template = LoggerTemplates.getJUL();
         assertNotNull(template);
         assertEquals("JUL", template.getId());
-        assertEquals("Logger", template.getLoggerClass());
-        assertEquals("Logger", template.getFactoryClass());
+        assertEquals("java.util.logging.Logger", template.getLoggerClass());
+        assertEquals("java.util.logging.Logger", template.getFactoryClass());
         assertEquals("getLogger", template.getFactoryMethod());
+        assertEquals("Logger", template.getLoggerType());
         assertTrue(template.getImportStatement().contains("java.util.logging"));
     }
 

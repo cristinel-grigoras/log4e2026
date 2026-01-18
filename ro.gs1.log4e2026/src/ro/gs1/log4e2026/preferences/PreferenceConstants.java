@@ -5,12 +5,13 @@ package ro.gs1.log4e2026.preferences;
  */
 public class PreferenceConstants {
 
-    // Logging framework
-    public static final String P_LOGGING_FRAMEWORK = "loggingFramework";
-    public static final String P_LOGGER_PROFILE = "loggerProfile";
-    public static final String P_LOGGER_NAME = "loggerName";
-    public static final String P_LOGGER_STATIC = "loggerStatic";
-    public static final String P_LOGGER_FINAL = "loggerFinal";
+    // Logging framework - keys match old project and PreferenceKeys
+    // P_LOGGING_FRAMEWORK is alias for P_LOGGER_PROFILE (same key)
+    public static final String P_LOGGER_PROFILE = "LOGGER_PROFILE";
+    public static final String P_LOGGING_FRAMEWORK = P_LOGGER_PROFILE;
+    public static final String P_LOGGER_NAME = "LOGGER_NAME";
+    public static final String P_LOGGER_STATIC = "STATIC_FLAG";
+    public static final String P_LOGGER_FINAL = "FINAL_FLAG";
 
     // Default values
     public static final String DEFAULT_FRAMEWORK = "SLF4J";
@@ -31,8 +32,8 @@ public class PreferenceConstants {
     public static final String P_TEMPLATE_EXIT = "templateExit";
     public static final String P_TEMPLATE_CATCH = "templateCatch";
 
-    // Format
-    public static final String P_DELIMITER = "delimiter";
+    // Format - keys match old project
+    public static final String P_DELIMITER = "FORMAT_DELIMITER";
     public static final String P_INCLUDE_CLASS_NAME = "includeClassName";
     public static final String P_INCLUDE_METHOD_NAME = "includeMethodName";
 

@@ -363,6 +363,34 @@ public class TestTimingUtil {
     }
 
     /**
+     * Condition: wait for a project with specific name to exist in the tree.
+     * More robust than treeHasRows(1) when other projects may exist.
+     */
+    public static ICondition projectExists(SWTWorkbenchBot bot, String projectName) {
+        return new ICondition() {
+            @Override
+            public boolean test() throws Exception {
+                try {
+                    for (SWTBotTreeItem item : bot.tree().getAllItems()) {
+                        if (item.getText().equals(projectName)) {
+                            return true;
+                        }
+                    }
+                } catch (Exception e) {
+                    // Tree not ready
+                }
+                return false;
+            }
+            @Override
+            public void init(SWTBot bot) {}
+            @Override
+            public String getFailureMessage() {
+                return "Project '" + projectName + "' not found in tree";
+            }
+        };
+    }
+
+    /**
      * Focus the workbench shell (not internal Eclipse shells like "PartRenderingEngine's limbo").
      * This should be called in setUp() instead of bot.shells()[0].setFocus().
      */

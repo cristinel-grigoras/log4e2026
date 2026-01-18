@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import ro.gs1.log4e2026.jdt.ASTUtil;
 import ro.gs1.log4e2026.operations.LoggingOperation;
 import ro.gs1.log4e2026.operations.OperationContext;
+import ro.gs1.log4e2026.preferences.PreferenceConstants;
 
 /**
  * Handler for adding logging to the entire current method.
@@ -21,6 +22,16 @@ import ro.gs1.log4e2026.operations.OperationContext;
  * Keyboard shortcut: Ctrl+Alt+I
  */
 public class LogMethodHandler extends BaseLogHandler {
+
+    @Override
+    protected String getWizardPreferenceKey() {
+        return PreferenceConstants.P_WIZARD_INSERT_METHOD;
+    }
+
+    @Override
+    protected String getWizardTitle() {
+        return "Insert Log in Method";
+    }
 
     @Override
     protected void executeOperation(OperationContext context, String selectedText) throws Exception {

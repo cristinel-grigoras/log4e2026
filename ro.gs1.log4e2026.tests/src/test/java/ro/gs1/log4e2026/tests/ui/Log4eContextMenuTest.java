@@ -70,7 +70,7 @@ public class Log4eContextMenuTest {
 			// Welcome view may not exist
 		}
 		// Ensure we have an active shell (setFocus doesn't timeout like activate)
-		bot.shells()[0].setFocus();
+		TestTimingUtil.focusWorkbenchShell(bot);
 	}
 
 	@After
@@ -148,8 +148,8 @@ public class Log4eContextMenuTest {
 
 		// Wait for wizard to close and project to appear in tree
 		log("1.11 before wait for tree");
-		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 10000);
-		log("1.12 after tree has rows");
+		TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+		log("1.12 project found in tree");
 
 		// Verify project created
 		SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);

@@ -82,7 +82,7 @@ public class PreferenceSaveTest {
     private void openPreferences() throws Exception {
         log("openPreferences start");
         // Ensure we have an active shell
-        bot.shells()[0].setFocus();
+        TestTimingUtil.focusWorkbenchShell(bot);
         int shellCount = bot.shells().length;
         log("after setFocus");
 

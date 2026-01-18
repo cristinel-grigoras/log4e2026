@@ -1,5 +1,7 @@
 package ro.gs1.log4e2026.preferences;
 
+import java.util.List;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -8,7 +10,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import ro.gs1.log4e2026.Log4e2026Plugin;
-import ro.gs1.log4e2026.templates.LoggerTemplates;
+import ro.gs1.log4e2026.templates.Profile;
+import ro.gs1.log4e2026.templates.ProfileManager;
 
 /**
  * Main preference page for Log4E plugin.
@@ -23,12 +26,8 @@ public class Log4ePreferencePage extends FieldEditorPreferencePage implements IW
 
     @Override
     public void createFieldEditors() {
-        // Logging framework selection
-        String[][] frameworks = {
-            {"SLF4J", LoggerTemplates.SLF4J},
-            {"Log4j 2", LoggerTemplates.LOG4J2},
-            {"JDK Logging (java.util.logging)", LoggerTemplates.JUL}
-        };
+        // Logging framework selection - dynamically load from ProfileManager
+        String[][] frameworks = getAvailableFrameworks();
         addField(new ComboFieldEditor(
             PreferenceConstants.P_LOGGING_FRAMEWORK,
             "Logging Framework:",
@@ -117,5 +116,24 @@ public class Log4ePreferencePage extends FieldEditorPreferencePage implements IW
     @Override
     public void init(IWorkbench workbench) {
         // Nothing to initialize
+    }
+
+    /**
+     * Get available frameworks from ProfileManager.
+     * Returns array of {displayName, profileName} pairs for ComboFieldEditor.
+     */
+    private String[][] getAvailableFrameworks() {
+        List<Profile> profiles = ProfileManager.getInstance().getProfiles().getProfileList();
+        String[][] frameworks = new String[profiles.size()][2];
+        for (int i = 0; i < profiles.size(); i++) {
+            Profile p = profiles.get(i);
+            String displayName = p.getTitle();
+            if (p.isBuiltIn()) {
+                displayName += " (built-in)";
+            }
+            frameworks[i][0] = displayName;
+            frameworks[i][1] = p.getName();  // Use profile name as value
+        }
+        return frameworks;
     }
 }

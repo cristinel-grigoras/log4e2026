@@ -17,12 +17,23 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import ro.gs1.log4e2026.jdt.ASTUtil;
 import ro.gs1.log4e2026.operations.LoggingOperation;
 import ro.gs1.log4e2026.operations.OperationContext;
+import ro.gs1.log4e2026.preferences.PreferenceConstants;
 
 /**
  * Handler for adding logging to all methods in the current class.
  * Keyboard shortcut: Ctrl+Alt+U
  */
 public class LogClassHandler extends BaseLogHandler {
+
+    @Override
+    protected String getWizardPreferenceKey() {
+        return PreferenceConstants.P_WIZARD_INSERT_CLASS;
+    }
+
+    @Override
+    protected String getWizardTitle() {
+        return "Log This Class";
+    }
 
     @Override
     protected void executeOperation(OperationContext context, String selectedText) throws Exception {

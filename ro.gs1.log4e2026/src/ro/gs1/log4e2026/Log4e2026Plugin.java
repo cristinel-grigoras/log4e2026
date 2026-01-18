@@ -1,10 +1,13 @@
 package ro.gs1.log4e2026;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import ro.gs1.log4e2026.preferences.ProjectPreferences;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -70,5 +73,17 @@ public class Log4e2026Plugin extends AbstractUIPlugin {
 
     public static IPreferenceStore getPreferences() {
         return getDefault().getPreferenceStore();
+    }
+
+    /**
+     * Get project-aware preferences for a specific project.
+     * If project-specific settings are enabled, project preferences take precedence.
+     * Otherwise, workspace preferences are used.
+     *
+     * @param project the project to get preferences for (may be null for workspace prefs)
+     * @return ProjectPreferences instance
+     */
+    public static ProjectPreferences getProjectPreferences(IProject project) {
+        return new ProjectPreferences(project);
     }
 }

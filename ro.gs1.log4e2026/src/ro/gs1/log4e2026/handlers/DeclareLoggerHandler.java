@@ -27,6 +27,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import ro.gs1.log4e2026.Log4e2026Plugin;
 import ro.gs1.log4e2026.preferences.PreferenceConstants;
+import ro.gs1.log4e2026.preferences.ProjectPreferences;
 import ro.gs1.log4e2026.templates.LoggerTemplate;
 import ro.gs1.log4e2026.templates.LoggerTemplates;
 import ro.gs1.log4e2026.wizard.ChangeElement;
@@ -76,11 +77,11 @@ public class DeclareLoggerHandler extends AbstractHandler {
         parser.setResolveBindings(true);
         CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
 
-        // Get preferences
-        String framework = Log4e2026Plugin.getPreferences()
-                .getString(PreferenceConstants.P_LOGGING_FRAMEWORK);
-        String loggerName = Log4e2026Plugin.getPreferences()
-                .getString(PreferenceConstants.P_LOGGER_NAME);
+        // Get project-aware preferences
+        ProjectPreferences prefs = Log4e2026Plugin.getProjectPreferences(
+                cu.getJavaProject().getProject());
+        String framework = prefs.getLoggingFramework();
+        String loggerName = prefs.getLoggerName();
 
         // Get the template
         LoggerTemplate template = LoggerTemplates.getTemplate(framework);

@@ -116,7 +116,7 @@ public class LogThisClassTest {
             // Dialog may not appear
         }
 
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
         assertNotNull(bot.tree().getTreeItem(PROJECT_NAME));
         projectCreated = true;
         log("1.1 project created");

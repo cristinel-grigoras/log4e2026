@@ -25,7 +25,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import ro.gs1.log4e2026.Log4e2026Plugin;
-import ro.gs1.log4e2026.preferences.PreferenceConstants;
+import ro.gs1.log4e2026.preferences.ProjectPreferences;
 
 /**
  * Handler for inserting a log statement at the current cursor position.
@@ -82,11 +82,11 @@ public class InsertLogStatementHandler extends AbstractHandler {
             return;
         }
 
-        // Get preferences
-        String loggerName = Log4e2026Plugin.getPreferences()
-                .getString(PreferenceConstants.P_LOGGER_NAME);
-        String delimiter = Log4e2026Plugin.getPreferences()
-                .getString(PreferenceConstants.P_DELIMITER);
+        // Get project-aware preferences
+        ProjectPreferences prefs = Log4e2026Plugin.getProjectPreferences(
+                cu.getJavaProject().getProject());
+        String loggerName = prefs.getLoggerName();
+        String delimiter = prefs.getDelimiter();
 
         // Build the log statement
         String methodName = method.getName().getIdentifier();

@@ -293,13 +293,15 @@ public class TemplateManagementUITest {
             // Select SLF4J profile
             SWTBotCombo profileCombo = bot.comboBox(0);
             String[] items = profileCombo.items();
+            System.out.println("  Available profiles before duplicate:");
             for (int i = 0; i < items.length; i++) {
+                System.out.println("    [" + i + "] " + items[i]);
                 if (items[i].contains("SLF4J")) {
                     profileCombo.setSelection(i);
-                    break;
                 }
             }
-            log("05.2 SLF4J selected");
+            System.out.flush();
+            log("05.2 SLF4J selected: " + profileCombo.getText());
 
             // Click Duplicate
             bot.button("Duplicate...").click();
@@ -309,16 +311,52 @@ public class TemplateManagementUITest {
             TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Duplicate Profile"), 1000);
             log("05.4 Duplicate dialog opened");
 
+            // Log the proposed name and current dialog state
+            SWTBotText nameText = bot.text(0);
+            String proposedName = nameText.getText();
+            System.out.println("  Proposed name from dialog: '" + proposedName + "'");
+
+            // Use unique name with timestamp to avoid conflicts on surefire retry
+            String uniqueName = "My Custom SLF4J " + System.currentTimeMillis();
+            System.out.println("  Will enter unique name: '" + uniqueName + "'");
+            System.out.flush();
+
             captureScreen("template_05_duplicate_dialog.png");
 
-            // Enter new name - use selectAll + typeText to trigger validation
-            SWTBotText nameText = bot.text(0);
+            // Clear and enter new name
             nameText.selectAll();
-            nameText.typeText("My Custom SLF4J");
-            log("05.5 Name entered");
+            nameText.typeText(uniqueName);
+
+            // Log entered text and OK button state
+            String enteredText = nameText.getText();
+            boolean okEnabled = bot.button("OK").isEnabled();
+            System.out.println("  Text field after typing: '" + enteredText + "'");
+            System.out.println("  OK button enabled: " + okEnabled);
+
+            // Check for validation error message (InputDialog shows it as errorMessage label)
+            try {
+                // InputDialog uses a label to show validation errors
+                for (int li = 0; li < 5; li++) {
+                    try {
+                        String labelText = bot.label(li).getText();
+                        if (labelText != null && !labelText.isEmpty()
+                                && !labelText.equals("Enter a name for the new profile:")) {
+                            System.out.println("  Validation message label[" + li + "]: '" + labelText + "'");
+                        }
+                    } catch (Exception e) { break; }
+                }
+            } catch (Exception e) { /* ignore */ }
+            System.out.flush();
+            log("05.5 Name entered: '" + enteredText + "' OK=" + okEnabled);
+
+            if (!okEnabled) {
+                captureScreen("template_05_ok_disabled.png");
+                System.out.println("  ERROR: OK button not enabled after entering name");
+                System.out.flush();
+            }
 
             // Click OK
-            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.button("OK")), 1000);
+            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.button("OK")), 3000);
             bot.button("OK").click();
             log("05.6 OK clicked");
 
@@ -330,14 +368,16 @@ public class TemplateManagementUITest {
             prefShell.setFocus();
             String[] newItems = bot.comboBox(0).items();
             boolean found = false;
+            System.out.println("  Profiles after duplicate:");
             for (String item : newItems) {
-                if (item.contains("My Custom SLF4J")) {
+                System.out.println("    - " + item);
+                if (item.contains(uniqueName)) {
                     found = true;
-                    break;
                 }
             }
+            System.out.flush();
 
-            assertTrue("Duplicated profile should appear in combo", found);
+            assertTrue("Duplicated profile '" + uniqueName + "' should appear in combo", found);
             log("05.7 Verified duplicate exists");
 
             captureScreen("template_05_after_duplicate.png");

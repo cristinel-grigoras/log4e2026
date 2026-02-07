@@ -58,6 +58,7 @@ public class Log4eScreenshotTest {
         } catch (Exception e) {
             // Welcome view may not exist
         }
+        TestTimingUtil.focusWorkbenchShell(bot);
     }
 
     @After
@@ -133,9 +134,19 @@ public class Log4eScreenshotTest {
     public void captureLog4ePreferencePage() throws Exception {
         log("start");
         TestTimingUtil.focusWorkbenchShell(bot);
-        log("after setFocus");
+        log("after focusWorkbenchShell");
 
-        bot.menu("Window").menu("Preferences").click();
+        // Log active shell and focus state before menu click
+        System.out.println("  Active shell: '" + bot.activeShell().getText() + "'");
+        System.out.println("  Shell count: " + bot.shells().length);
+        for (org.eclipse.swtbot.swt.finder.widgets.SWTBotShell s : bot.shells()) {
+            try {
+                System.out.println("    shell: '" + s.getText() + "' active=" + s.isActive());
+            } catch (Exception e) { /* ignore */ }
+        }
+        System.out.flush();
+
+        bot.menu("Window").menu("Preferences...").click();
         TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
         log("after Preferences open");
 

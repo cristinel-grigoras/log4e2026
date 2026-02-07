@@ -393,6 +393,37 @@ public class TestTimingUtil {
     }
 
     /**
+     * Delete a project from the workspace if it exists. Use before creating
+     * a project to handle retries from failed previous runs.
+     * @return true if project was found and deleted
+     */
+    public static boolean deleteProjectIfExists(SWTWorkbenchBot bot, String projectName) {
+        try {
+            SWTBotTreeItem project = bot.tree().getTreeItem(projectName);
+            System.out.println("  [deleteProjectIfExists] '" + projectName + "' exists, deleting...");
+            System.out.flush();
+
+            bot.closeAllEditors();
+            focusWorkbenchShell(bot);
+            project.select();
+            project.contextMenu("Delete").click();
+
+            waitUntil(bot, org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive("Delete Resources"), 3000);
+            bot.checkBox("Delete project contents on disk (cannot be undone)").click();
+            org.eclipse.swtbot.swt.finder.widgets.SWTBotShell deleteShell = bot.shell("Delete Resources");
+            bot.button("OK").click();
+            waitUntil(bot, org.eclipse.swtbot.swt.finder.waits.Conditions.shellCloses(deleteShell), 3000);
+
+            System.out.println("  [deleteProjectIfExists] '" + projectName + "' deleted successfully");
+            System.out.flush();
+            return true;
+        } catch (Exception e) {
+            // Project does not exist or deletion failed - OK to proceed
+            return false;
+        }
+    }
+
+    /**
      * Focus the workbench shell (not internal Eclipse shells like "PartRenderingEngine's limbo").
      * This should be called in setUp() instead of bot.shells()[0].setFocus().
      */

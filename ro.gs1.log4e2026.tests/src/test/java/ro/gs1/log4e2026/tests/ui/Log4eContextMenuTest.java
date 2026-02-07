@@ -91,6 +91,9 @@ public class Log4eContextMenuTest {
 	public void test1_CreateJavaProject() throws Exception {
 		log("1.0 start");
 
+		// If project already exists (from failed previous run), delete it first
+		TestTimingUtil.deleteProjectIfExists(bot, PROJECT_NAME);
+
 		// Open File > New > Other dialog
 		bot.menu("File").menu("New").menu("Other...").click();
 		log("1.1 after menu click");
@@ -755,45 +758,10 @@ public class Log4eContextMenuTest {
 	@Test
 	public void test9_CleanupProject() throws Exception {
 		log("9.0 start");
-
-		// Close all editors
-		try {
-			bot.closeAllEditors();
-			log("9.1 editors closed");
-		} catch (Exception e) {
-			// Ignore
+		if (TestTimingUtil.deleteProjectIfExists(bot, PROJECT_NAME)) {
+			log("9.1 project deleted");
 		}
-
-		// Delete project using Edit menu
-		try {
-			SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
-			project.select();
-			log("9.2 project selected");
-
-			// Delete using Edit > Delete menu
-			bot.menu("Edit").menu("Delete").click();
-			log("9.3 delete menu clicked");
-			TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 1000);
-			log("9.4 delete dialog appeared");
-
-			// Confirm deletion
-			try {
-				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
-				bot.button("OK").click();
-				TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 0), 1000);
-				log("9.5 project deleted");
-			} catch (Exception e) {
-				// Dialog might be different
-				try {
-					bot.button("OK").click();
-				} catch (Exception e2) {
-					// Ignore
-				}
-			}
-		} catch (Exception e) {
-			System.out.println("Could not delete project: " + e.getMessage());
-		}
-		log("9.6 test complete");
+		log("9.2 test complete");
 	}
 
 	private void captureWithImport(String filename) throws Exception {

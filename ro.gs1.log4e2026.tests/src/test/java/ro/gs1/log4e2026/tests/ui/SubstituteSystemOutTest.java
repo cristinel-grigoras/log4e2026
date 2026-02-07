@@ -53,19 +53,7 @@ public class SubstituteSystemOutTest {
     @AfterClass
     public static void tearDownClass() {
         if (projectCreated) {
-            try {
-                bot.closeAllEditors();
-                SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
-                project.select();
-                project.contextMenu("Delete").click();
-                SWTBotShell deleteShell = bot.shell("Delete Resources");
-                deleteShell.activate();
-                bot.checkBox("Delete project contents on disk (cannot be undone)").click();
-                bot.button("OK").click();
-                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
-            } catch (Exception e) {
-                System.out.println("Cleanup failed: " + e.getMessage());
-            }
+            TestTimingUtil.deleteProjectIfExists(bot, PROJECT_NAME);
         }
         TestTimingUtil.printSummary();
     }
@@ -101,6 +89,9 @@ public class SubstituteSystemOutTest {
     @Test
     public void test1_CreateJavaProject() {
         log("1.0 start - create Java project");
+
+        // If project already exists (from failed previous run), delete it first
+        TestTimingUtil.deleteProjectIfExists(bot, PROJECT_NAME);
 
         bot.menu("File").menu("New").menu("Other...").click();
         TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);

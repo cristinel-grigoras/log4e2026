@@ -54,21 +54,8 @@ public class Log4eMenuUITest {
 
     @AfterClass
     public static void tearDownClass() {
-        // Clean up - delete the test project
         if (projectCreated) {
-            try {
-                bot.closeAllEditors();
-                SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
-                project.select();
-                project.contextMenu("Delete").click();
-                SWTBotShell deleteShell = bot.shell("Delete Resources");
-                deleteShell.activate();
-                bot.checkBox("Delete project contents on disk (cannot be undone)").click();
-                bot.button("OK").click();
-                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
-            } catch (Exception e) {
-                System.out.println("Cleanup failed: " + e.getMessage());
-            }
+            TestTimingUtil.deleteProjectIfExists(bot, PROJECT_NAME);
         }
         TestTimingUtil.printSummary();
     }
@@ -128,6 +115,9 @@ public class Log4eMenuUITest {
     @Test
     public void test2_CreateJavaProject() {
         log("2.0 start - create Java project");
+
+        // If project already exists (from failed previous run), delete it first
+        TestTimingUtil.deleteProjectIfExists(bot, PROJECT_NAME);
 
         // Use File -> New -> Other... and filter for Java Project
         bot.menu("File").menu("New").menu("Other...").click();

@@ -3,8 +3,6 @@ package ro.gs1.log4e2026.dialogs;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -21,7 +19,8 @@ import ro.gs1.log4e2026.templates.Profile;
 
 /**
  * Dialog for editing logger profile settings.
- * Contains tabs for: Declaration, Log Levels, Statement Patterns, Position Settings, Format.
+ * Contains tabs for: Declaration, Log Levels, Statement Patterns, Default Levels,
+ * Statements, Is-Enabled, Position Statements.
  */
 public class TemplateDialog extends Dialog {
 
@@ -57,6 +56,34 @@ public class TemplateDialog extends Dialog {
     private Text levelCatchText;
     private Text levelDefaultText;
 
+    // Statements tab
+    private Text stmtTraceText;
+    private Text stmtDebugText;
+    private Text stmtInfoText;
+    private Text stmtWarnText;
+    private Text stmtErrorText;
+    private Text stmtFatalText;
+    private Text stmtFinestText;
+    private Text stmtFinerText;
+
+    // Is-Enabled tab
+    private Text isEnabledTraceText;
+    private Text isEnabledDebugText;
+    private Text isEnabledInfoText;
+    private Text isEnabledWarnText;
+    private Text isEnabledErrorText;
+    private Text isEnabledFatalText;
+    private Text isEnabledFinestText;
+    private Text isEnabledFinerText;
+
+    // Position Statements tab
+    private Text posStartText;
+    private Text posEndText;
+    private Text posCatchText;
+    private Text posIsStartText;
+    private Text posIsEndText;
+    private Text posIsCatchText;
+
     public TemplateDialog(Shell parentShell, Profile profile) {
         super(parentShell);
         this.profile = profile;
@@ -69,7 +96,7 @@ public class TemplateDialog extends Dialog {
         super.configureShell(shell);
         String mode = readOnly ? " (Read-only)" : " (Editable)";
         shell.setText("Edit Profile: " + profile.getTitle() + mode);
-        shell.setMinimumSize(500, 400);
+        shell.setMinimumSize(600, 500);
     }
 
     @Override
@@ -83,6 +110,9 @@ public class TemplateDialog extends Dialog {
         createLogLevelsTab(tabFolder);
         createStatementPatternsTab(tabFolder);
         createDefaultLevelsTab(tabFolder);
+        createStatementsTab(tabFolder);
+        createIsEnabledTab(tabFolder);
+        createPositionStatementsTab(tabFolder);
 
         loadProfileData();
 
@@ -267,9 +297,139 @@ public class TemplateDialog extends Dialog {
         tab.setControl(content);
     }
 
+    private void createStatementsTab(TabFolder tabFolder) {
+        TabItem tab = new TabItem(tabFolder, SWT.NONE);
+        tab.setText("Statements");
+
+        Composite content = new Composite(tabFolder, SWT.NONE);
+        content.setLayout(new GridLayout(2, false));
+
+        Label info = new Label(content, SWT.WRAP);
+        info.setText("Log statement templates per level. Use ${logger}, ${enclosing_method}, ${delimiter}, ${message}, ${variables}, ${return_value}, ${exception}.");
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan = 2;
+        info.setLayoutData(gd);
+
+        new Label(content, SWT.NONE).setText("FINEST:");
+        stmtFinestText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("FINER:");
+        stmtFinerText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("TRACE:");
+        stmtTraceText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("DEBUG:");
+        stmtDebugText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("INFO:");
+        stmtInfoText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("WARN:");
+        stmtWarnText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("ERROR:");
+        stmtErrorText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("FATAL:");
+        stmtFatalText = createMultiText(content);
+
+        tab.setControl(content);
+    }
+
+    private void createIsEnabledTab(TabFolder tabFolder) {
+        TabItem tab = new TabItem(tabFolder, SWT.NONE);
+        tab.setText("Is-Enabled");
+
+        Composite content = new Composite(tabFolder, SWT.NONE);
+        content.setLayout(new GridLayout(2, false));
+
+        Label info = new Label(content, SWT.WRAP);
+        info.setText("Is-enabled check expressions per level. For SLF4J/Log4j2: ${logger}.isXxxEnabled(). For JUL: ${logger}.isLoggable(Level.XXX).");
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan = 2;
+        info.setLayoutData(gd);
+
+        new Label(content, SWT.NONE).setText("FINEST:");
+        isEnabledFinestText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("FINER:");
+        isEnabledFinerText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("TRACE:");
+        isEnabledTraceText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("DEBUG:");
+        isEnabledDebugText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("INFO:");
+        isEnabledInfoText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("WARN:");
+        isEnabledWarnText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("ERROR:");
+        isEnabledErrorText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("FATAL:");
+        isEnabledFatalText = createMultiText(content);
+
+        tab.setControl(content);
+    }
+
+    private void createPositionStatementsTab(TabFolder tabFolder) {
+        TabItem tab = new TabItem(tabFolder, SWT.NONE);
+        tab.setText("Position Statements");
+
+        Composite content = new Composite(tabFolder, SWT.NONE);
+        content.setLayout(new GridLayout(2, false));
+
+        Label info = new Label(content, SWT.WRAP);
+        info.setText("Position-specific statement templates. For JUL these use entering()/exiting()/throwing().");
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan = 2;
+        info.setLayoutData(gd);
+
+        new Label(content, SWT.NONE).setText("START statement:");
+        posStartText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("END statement:");
+        posEndText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("CATCH statement:");
+        posCatchText = createMultiText(content);
+
+        new Label(content, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+
+        Label isLabel = new Label(content, SWT.WRAP);
+        isLabel.setText("Is-enabled checks for position statements:");
+        isLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+
+        new Label(content, SWT.NONE).setText("START is-enabled:");
+        posIsStartText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("END is-enabled:");
+        posIsEndText = createMultiText(content);
+
+        new Label(content, SWT.NONE).setText("CATCH is-enabled:");
+        posIsCatchText = createMultiText(content);
+
+        tab.setControl(content);
+    }
+
     private Text createText(Composite parent) {
         Text text = new Text(parent, SWT.BORDER);
         text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        text.setEditable(!readOnly);
+        return text;
+    }
+
+    private Text createMultiText(Composite parent) {
+        Text text = new Text(parent, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.heightHint = 36;
+        text.setLayoutData(gd);
         text.setEditable(!readOnly);
         return text;
     }
@@ -303,6 +463,34 @@ public class TemplateDialog extends Dialog {
         setText(levelEndText, profile.getString("LOG_LEVEL_END"));
         setText(levelCatchText, profile.getString("LOG_LEVEL_CATCH"));
         setText(levelDefaultText, profile.getString("LOG_LEVEL_DEFAULT"));
+
+        // Statements tab
+        setText(stmtFinestText, profile.getString("LOGGER_FINEST_STATEMENT"));
+        setText(stmtFinerText, profile.getString("LOGGER_FINER_STATEMENT"));
+        setText(stmtTraceText, profile.getString("LOGGER_TRACE_STATEMENT"));
+        setText(stmtDebugText, profile.getString("LOGGER_DEBUG_STATEMENT"));
+        setText(stmtInfoText, profile.getString("LOGGER_INFO_STATEMENT"));
+        setText(stmtWarnText, profile.getString("LOGGER_WARN_STATEMENT"));
+        setText(stmtErrorText, profile.getString("LOGGER_ERROR_STATEMENT"));
+        setText(stmtFatalText, profile.getString("LOGGER_FATAL_STATEMENT"));
+
+        // Is-Enabled tab
+        setText(isEnabledFinestText, profile.getString("LOGGER_IS_FINEST_ENABLED_STATEMENT"));
+        setText(isEnabledFinerText, profile.getString("LOGGER_IS_FINER_ENABLED_STATEMENT"));
+        setText(isEnabledTraceText, profile.getString("LOGGER_IS_TRACE_ENABLED_STATEMENT"));
+        setText(isEnabledDebugText, profile.getString("LOGGER_IS_DEBUG_ENABLED_STATEMENT"));
+        setText(isEnabledInfoText, profile.getString("LOGGER_IS_INFO_ENABLED_STATEMENT"));
+        setText(isEnabledWarnText, profile.getString("LOGGER_IS_WARN_ENABLED_STATEMENT"));
+        setText(isEnabledErrorText, profile.getString("LOGGER_IS_ERROR_ENABLED_STATEMENT"));
+        setText(isEnabledFatalText, profile.getString("LOGGER_IS_FATAL_ENABLED_STATEMENT"));
+
+        // Position Statements tab
+        setText(posStartText, profile.getString("LOGGER_POS_START_STATEMENT"));
+        setText(posEndText, profile.getString("LOGGER_POS_END_STATEMENT"));
+        setText(posCatchText, profile.getString("LOGGER_POS_CATCH_STATEMENT"));
+        setText(posIsStartText, profile.getString("LOGGER_POS_IS_START_STATEMENT"));
+        setText(posIsEndText, profile.getString("LOGGER_POS_IS_END_STATEMENT"));
+        setText(posIsCatchText, profile.getString("LOGGER_POS_IS_CATCH_STATEMENT"));
     }
 
     private void setText(Text text, String value) {
@@ -344,6 +532,34 @@ public class TemplateDialog extends Dialog {
         profile.put("LOG_LEVEL_END", levelEndText.getText());
         profile.put("LOG_LEVEL_CATCH", levelCatchText.getText());
         profile.put("LOG_LEVEL_DEFAULT", levelDefaultText.getText());
+
+        // Statements tab
+        putIfNotEmpty("LOGGER_FINEST_STATEMENT", stmtFinestText);
+        putIfNotEmpty("LOGGER_FINER_STATEMENT", stmtFinerText);
+        putIfNotEmpty("LOGGER_TRACE_STATEMENT", stmtTraceText);
+        putIfNotEmpty("LOGGER_DEBUG_STATEMENT", stmtDebugText);
+        putIfNotEmpty("LOGGER_INFO_STATEMENT", stmtInfoText);
+        putIfNotEmpty("LOGGER_WARN_STATEMENT", stmtWarnText);
+        putIfNotEmpty("LOGGER_ERROR_STATEMENT", stmtErrorText);
+        putIfNotEmpty("LOGGER_FATAL_STATEMENT", stmtFatalText);
+
+        // Is-Enabled tab
+        putIfNotEmpty("LOGGER_IS_FINEST_ENABLED_STATEMENT", isEnabledFinestText);
+        putIfNotEmpty("LOGGER_IS_FINER_ENABLED_STATEMENT", isEnabledFinerText);
+        putIfNotEmpty("LOGGER_IS_TRACE_ENABLED_STATEMENT", isEnabledTraceText);
+        putIfNotEmpty("LOGGER_IS_DEBUG_ENABLED_STATEMENT", isEnabledDebugText);
+        putIfNotEmpty("LOGGER_IS_INFO_ENABLED_STATEMENT", isEnabledInfoText);
+        putIfNotEmpty("LOGGER_IS_WARN_ENABLED_STATEMENT", isEnabledWarnText);
+        putIfNotEmpty("LOGGER_IS_ERROR_ENABLED_STATEMENT", isEnabledErrorText);
+        putIfNotEmpty("LOGGER_IS_FATAL_ENABLED_STATEMENT", isEnabledFatalText);
+
+        // Position Statements tab
+        putIfNotEmpty("LOGGER_POS_START_STATEMENT", posStartText);
+        putIfNotEmpty("LOGGER_POS_END_STATEMENT", posEndText);
+        putIfNotEmpty("LOGGER_POS_CATCH_STATEMENT", posCatchText);
+        putIfNotEmpty("LOGGER_POS_IS_START_STATEMENT", posIsStartText);
+        putIfNotEmpty("LOGGER_POS_IS_END_STATEMENT", posIsEndText);
+        putIfNotEmpty("LOGGER_POS_IS_CATCH_STATEMENT", posIsCatchText);
     }
 
     private void putIfNotEmpty(String key, Text text) {

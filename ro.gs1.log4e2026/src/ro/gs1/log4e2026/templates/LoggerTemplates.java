@@ -37,7 +37,7 @@ public class LoggerTemplates {
             "org.apache.logging.log4j.Logger\norg.apache.logging.log4j.LogManager"
         ));
 
-        // JDK Logging (java.util.logging) - only needs Logger import
+        // JDK Logging (java.util.logging) - needs Logger and Level imports
         TEMPLATES.put(JUL, new LoggerTemplate(
             JUL,
             "JDK Logging",
@@ -45,7 +45,7 @@ public class LoggerTemplates {
             "java.util.logging.Logger",
             "getLogger",
             "private static final Logger ${logger} = Logger.getLogger(${enclosing_type}.class.getName());",
-            "java.util.logging.Logger"
+            "java.util.logging.Logger\njava.util.logging.Level"
         ));
     }
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -30,11 +31,12 @@ import ro.gs1.log4e2026.settings.PositionEndSettings;
 import ro.gs1.log4e2026.settings.PositionStartSettings;
 import ro.gs1.log4e2026.templates.LoggerTemplate;
 import ro.gs1.log4e2026.templates.LoggerTemplates;
+import ro.gs1.log4e2026.templates.Profile;
+import ro.gs1.log4e2026.templates.ProfileManager;
 
 /**
  * Base class for logging operations that manipulate the AST.
- * Enhanced with position settings integration, conditional wrapping,
- * and parameter logging support.
+ * Uses profile-based statement templates for framework-specific code generation.
  */
 public class LoggingOperation {
 
@@ -42,6 +44,9 @@ public class LoggingOperation {
     private LoggerTemplate template;
     private String loggerName;
     private IPreferenceStore prefs;
+
+    // Active profile for statement templates
+    private Profile activeProfile;
 
     // Position settings
     private PositionStartSettings startSettings;
@@ -80,6 +85,9 @@ public class LoggingOperation {
             this.loggerName = "logger";
         }
 
+        // Load active profile for statement templates
+        this.activeProfile = ProfileManager.getInstance().getCurrentProfile();
+
         // Initialize position settings
         this.startSettings = new PositionStartSettings();
         this.endSettings = new PositionEndSettings();
@@ -96,6 +104,129 @@ public class LoggingOperation {
         if (this.variablePlaceholder == null || this.variablePlaceholder.isEmpty()) {
             this.variablePlaceholder = "{}";
         }
+    }
+
+    // ========== Profile Template Resolution ==========
+
+    /**
+     * Gets the log method name for a given level from the active profile.
+     * Falls back to the LogLevel enum method name if profile has no mapping.
+     */
+    private String getLogMethodForLevel(LogLevel level) {
+        if (activeProfile != null) {
+            // Try profile-specific method mapping
+            String key = "LOG_METHOD_" + level.name();
+            String method = activeProfile.getString(key);
+            if (method != null && !method.isEmpty()) {
+                return method;
+            }
+        }
+        return level.getMethodName();
+    }
+
+    /**
+     * Gets the statement template key for a given log level.
+     */
+    private String getStatementTemplateKey(LogLevel level) {
+        return "LOGGER_" + level.name() + "_STATEMENT";
+    }
+
+    /**
+     * Gets the is-enabled statement template key for a given log level.
+     */
+    private String getIsEnabledTemplateKey(LogLevel level) {
+        return "LOGGER_IS_" + level.name() + "_ENABLED_STATEMENT";
+    }
+
+    /**
+     * Resolves a template string by substituting placeholders with actual values.
+     */
+    private String resolveTemplate(String templateStr, String methodName, String className,
+                                    String message, String exceptionName) {
+        if (templateStr == null) {
+            return null;
+        }
+        String result = templateStr;
+        result = result.replace("${logger}", loggerName);
+        result = result.replace("${enclosing_method}", methodName != null ? methodName : "");
+        result = result.replace("${enclosing_type}", className != null ? className : "");
+        result = result.replace("${delimiter}", delimiter);
+        result = result.replace("${delimiter_msg}", delimiter);
+        result = result.replace("${message}", message != null ? message : "");
+        result = result.replace("${message_user}", "");
+        result = result.replace("${variables}", "");
+        result = result.replace("${return_value}", "");
+        result = result.replace("${exception}", exceptionName != null ? exceptionName : "e");
+        result = result.replace("${variable}", "");
+        return result;
+    }
+
+    /**
+     * Parses a Java statement string into an AST Statement node.
+     */
+    private Statement parseStatement(AST ast, String statementStr) {
+        if (statementStr == null || statementStr.trim().isEmpty()) {
+            return null;
+        }
+        // Ensure statement ends with semicolon
+        String stmt = statementStr.trim();
+        if (!stmt.endsWith(";")) {
+            stmt = stmt + ";";
+        }
+
+        ASTParser stmtParser = ASTParser.newParser(AST.getJLSLatest());
+        stmtParser.setSource(("class Temp { void m() { " + stmt + " } }").toCharArray());
+        stmtParser.setKind(ASTParser.K_COMPILATION_UNIT);
+        CompilationUnit tempCu = (CompilationUnit) stmtParser.createAST(null);
+        TypeDeclaration tempType = (TypeDeclaration) tempCu.types().get(0);
+        MethodDeclaration tempMethod = tempType.getMethods()[0];
+
+        if (tempMethod.getBody().statements().isEmpty()) {
+            return null;
+        }
+
+        Statement tempStmt = (Statement) tempMethod.getBody().statements().get(0);
+        return (Statement) ASTNode.copySubtree(ast, tempStmt);
+    }
+
+    /**
+     * Parses a Java expression string (for if-conditions) and wraps a statement in it.
+     */
+    private Statement parseConditionalWrap(AST ast, String conditionStr, Statement logStatement) {
+        if (conditionStr == null || conditionStr.trim().isEmpty()) {
+            return logStatement;
+        }
+
+        String condition = conditionStr.trim();
+        // Remove trailing semicolon if present
+        if (condition.endsWith(";")) {
+            condition = condition.substring(0, condition.length() - 1);
+        }
+
+        // Build the full if-statement
+        String ifStmt = "if (" + condition + ") { }";
+
+        ASTParser stmtParser = ASTParser.newParser(AST.getJLSLatest());
+        stmtParser.setSource(("class Temp { void m() { " + ifStmt + " } }").toCharArray());
+        stmtParser.setKind(ASTParser.K_COMPILATION_UNIT);
+        CompilationUnit tempCu = (CompilationUnit) stmtParser.createAST(null);
+        TypeDeclaration tempType = (TypeDeclaration) tempCu.types().get(0);
+        MethodDeclaration tempMethod = tempType.getMethods()[0];
+
+        if (tempMethod.getBody().statements().isEmpty()) {
+            return logStatement;
+        }
+
+        IfStatement parsedIf = (IfStatement) ASTNode.copySubtree(ast,
+                (Statement) tempMethod.getBody().statements().get(0));
+
+        // Insert the log statement into the if-block
+        Block thenBlock = (Block) parsedIf.getThenStatement();
+        @SuppressWarnings("unchecked")
+        List<Statement> thenStatements = thenBlock.statements();
+        thenStatements.add(logStatement);
+
+        return parsedIf;
     }
 
     // ========== Position Settings Accessors ==========
@@ -242,9 +373,12 @@ public class LoggingOperation {
         return loggerName;
     }
 
+    public Profile getActiveProfile() {
+        return activeProfile;
+    }
+
     /**
-     * Creates a log statement for method entry.
-     * Uses position settings for log level and includes parameters if configured.
+     * Creates a log statement for method entry using profile templates.
      */
     public Statement createEntryLogStatement(AST ast, MethodDeclaration method) {
         String methodName = ASTUtil.getName(method);
@@ -264,11 +398,9 @@ public class LoggingOperation {
             if (!paramInfo.isEmpty()) {
                 message.append(delimiter);
                 if (includeParameterValues()) {
-                    // Use placeholders for values: param1={}, param2={}
                     message.append(String.join(", ", paramInfo));
                     return createLogStatementWithParams(ast, level, message.toString(), method);
                 } else {
-                    // Just names: param1, param2
                     message.append(String.join(", ", getParameterNames(method)));
                 }
             }
@@ -280,7 +412,6 @@ public class LoggingOperation {
 
     /**
      * Creates a log statement for method exit.
-     * Uses position settings for log level.
      */
     public Statement createExitLogStatement(AST ast, MethodDeclaration method) {
         String methodName = ASTUtil.getName(method);
@@ -297,7 +428,6 @@ public class LoggingOperation {
 
     /**
      * Creates a log statement for method exit with return value.
-     * Uses position settings for log level and return value inclusion.
      */
     public Statement createExitLogStatementWithReturn(AST ast, MethodDeclaration method, String returnVarName) {
         String methodName = ASTUtil.getName(method);
@@ -318,7 +448,6 @@ public class LoggingOperation {
 
     /**
      * Creates a log statement for a catch block.
-     * Uses position settings for log level.
      */
     public Statement createCatchLogStatement(AST ast, CatchClause catchClause, MethodDeclaration method) {
         String methodName = ASTUtil.getName(method);
@@ -330,7 +459,6 @@ public class LoggingOperation {
         }
 
         String message = methodName + "()" + delimiter + customMsg;
-        // Error level statements typically don't need conditional wrapping
         return createErrorLogStatement(ast, message, exceptionName);
     }
 
@@ -347,7 +475,6 @@ public class LoggingOperation {
 
     /**
      * Extracts parameter info for logging.
-     * Returns list of "paramName={}" strings for placeholder format.
      */
     @SuppressWarnings("unchecked")
     private List<String> extractParameterInfo(MethodDeclaration method) {
@@ -375,12 +502,15 @@ public class LoggingOperation {
 
     /**
      * Creates a log statement with method parameters as arguments.
+     * Uses profile-aware method name resolution.
      */
     @SuppressWarnings("unchecked")
     public Statement createLogStatementWithParams(AST ast, LogLevel level, String message, MethodDeclaration method) {
+        String logMethod = getLogMethodForLevel(level);
+
         MethodInvocation invocation = ast.newMethodInvocation();
         invocation.setExpression(ast.newSimpleName(loggerName));
-        invocation.setName(ast.newSimpleName(level.getMethodName()));
+        invocation.setName(ast.newSimpleName(logMethod));
 
         StringLiteral literal = ast.newStringLiteral();
         literal.setLiteralValue(message);
@@ -399,9 +529,9 @@ public class LoggingOperation {
     // ========== Conditional Wrapping ==========
 
     /**
-     * Wraps a log statement with if(logger.isXxxEnabled()) check if configured.
+     * Wraps a log statement with an is-enabled check if configured.
+     * Uses profile templates for framework-specific is-enabled syntax.
      */
-    @SuppressWarnings("unchecked")
     public Statement wrapWithConditionalIfNeeded(AST ast, LogLevel level, Statement logStatement) {
         if (!useConditionalWrapping) {
             return logStatement;
@@ -412,42 +542,49 @@ public class LoggingOperation {
             return logStatement;
         }
 
-        // Get the is-enabled method name
-        String isEnabledMethod = getIsEnabledMethodName(level);
-        if (isEnabledMethod == null || isEnabledMethod.isEmpty()) {
+        // Get the is-enabled expression from profile template
+        String isEnabledTemplate = getIsEnabledExpression(level);
+        if (isEnabledTemplate == null || isEnabledTemplate.isEmpty()) {
             return logStatement;
         }
 
-        // Create: if (logger.isDebugEnabled()) { ... }
-        IfStatement ifStmt = ast.newIfStatement();
-
-        // Create condition: logger.isDebugEnabled()
-        MethodInvocation condition = ast.newMethodInvocation();
-        condition.setExpression(ast.newSimpleName(loggerName));
-        condition.setName(ast.newSimpleName(isEnabledMethod));
-        ifStmt.setExpression(condition);
-
-        // Create body block with the log statement
-        Block thenBlock = ast.newBlock();
-        thenBlock.statements().add(logStatement);
-        ifStmt.setThenStatement(thenBlock);
-
-        return ifStmt;
+        return parseConditionalWrap(ast, isEnabledTemplate, logStatement);
     }
 
     /**
-     * Gets the isXxxEnabled method name for a log level.
+     * Gets the is-enabled expression for a log level from the active profile.
+     * Falls back to programmatic construction if profile has no template.
      */
-    private String getIsEnabledMethodName(LogLevel level) {
+    private String getIsEnabledExpression(LogLevel level) {
+        if (activeProfile != null) {
+            String key = getIsEnabledTemplateKey(level);
+            String template = activeProfile.getString(key);
+            if (template != null && !template.isEmpty()) {
+                // Resolve just the logger name placeholder
+                return template.replace("${logger}", loggerName);
+            }
+        }
+        // Fallback: build programmatically for SLF4J-style
+        String methodName = getIsEnabledMethodNameFallback(level);
+        if (methodName == null) {
+            return null;
+        }
+        return loggerName + "." + methodName + "()";
+    }
+
+    /**
+     * Fallback method to get is-enabled method name when profile has no template.
+     */
+    private String getIsEnabledMethodNameFallback(LogLevel level) {
         return switch (level) {
             case TRACE -> "isTraceEnabled";
             case DEBUG -> "isDebugEnabled";
             case INFO -> "isInfoEnabled";
             case WARN -> "isWarnEnabled";
             case ERROR -> "isErrorEnabled";
-            case FINEST -> "isLoggable"; // JUL uses isLoggable(Level)
+            case FINEST -> "isLoggable";
             case FINER -> "isLoggable";
-            case FATAL -> null; // No check for fatal
+            case FATAL -> null;
         };
     }
 
@@ -464,7 +601,9 @@ public class LoggingOperation {
         }
         MethodInvocation condition = (MethodInvocation) ifStmt.getExpression();
         String methodName = condition.getName().getIdentifier();
-        return methodName.startsWith("is") && methodName.endsWith("Enabled");
+        // Support both SLF4J-style isXxxEnabled() and JUL-style isLoggable()
+        return (methodName.startsWith("is") && methodName.endsWith("Enabled"))
+                || "isLoggable".equals(methodName);
     }
 
     /**
@@ -488,13 +627,15 @@ public class LoggingOperation {
     }
 
     /**
-     * Creates a basic log statement.
+     * Creates a basic log statement using profile-aware method name.
      */
     @SuppressWarnings("unchecked")
     public Statement createLogStatement(AST ast, LogLevel level, String message) {
+        String logMethod = getLogMethodForLevel(level);
+
         MethodInvocation invocation = ast.newMethodInvocation();
         invocation.setExpression(ast.newSimpleName(loggerName));
-        invocation.setName(ast.newSimpleName(level.getMethodName()));
+        invocation.setName(ast.newSimpleName(logMethod));
 
         StringLiteral literal = ast.newStringLiteral();
         literal.setLiteralValue(message);
@@ -504,13 +645,15 @@ public class LoggingOperation {
     }
 
     /**
-     * Creates a log statement with an argument.
+     * Creates a log statement with an argument using profile-aware method name.
      */
     @SuppressWarnings("unchecked")
     public Statement createLogStatementWithArg(AST ast, LogLevel level, String message, String argName) {
+        String logMethod = getLogMethodForLevel(level);
+
         MethodInvocation invocation = ast.newMethodInvocation();
         invocation.setExpression(ast.newSimpleName(loggerName));
-        invocation.setName(ast.newSimpleName(level.getMethodName()));
+        invocation.setName(ast.newSimpleName(logMethod));
 
         StringLiteral literal = ast.newStringLiteral();
         literal.setLiteralValue(message);
@@ -521,13 +664,16 @@ public class LoggingOperation {
     }
 
     /**
-     * Creates an error log statement with exception.
+     * Creates an error log statement with exception using profile-aware method name.
      */
     @SuppressWarnings("unchecked")
     public Statement createErrorLogStatement(AST ast, String message, String exceptionName) {
+        // Get the error-level method name from profile
+        String errorMethod = getLogMethodForLevel(LogLevel.ERROR);
+
         MethodInvocation invocation = ast.newMethodInvocation();
         invocation.setExpression(ast.newSimpleName(loggerName));
-        invocation.setName(ast.newSimpleName("error"));
+        invocation.setName(ast.newSimpleName(errorMethod));
 
         StringLiteral literal = ast.newStringLiteral();
         literal.setLiteralValue(message);
@@ -535,6 +681,42 @@ public class LoggingOperation {
         invocation.arguments().add(ast.newSimpleName(exceptionName));
 
         return ast.newExpressionStatement(invocation);
+    }
+
+    /**
+     * Creates a log statement for the default level (used by InsertLogStatementHandler).
+     * Uses the profile's default level and corresponding method name.
+     */
+    public Statement createDefaultLevelLogStatement(AST ast, String methodName, String message) {
+        // Get default level from profile
+        LogLevel defaultLevel = getDefaultLogLevel();
+        String logMethod = getLogMethodForLevel(defaultLevel);
+
+        String fullMessage = methodName + "()" + delimiter + (message != null ? message : "");
+        String statementStr = loggerName + "." + logMethod + "(\"" + fullMessage + "\");";
+
+        Statement stmt = parseStatement(ast, statementStr);
+        if (stmt != null) {
+            return stmt;
+        }
+        // Fallback to AST construction
+        return createLogStatement(ast, defaultLevel, fullMessage);
+    }
+
+    /**
+     * Gets the default log level from the active profile.
+     */
+    public LogLevel getDefaultLogLevel() {
+        if (activeProfile != null) {
+            String levelStr = activeProfile.getString("LOG_LEVEL_DEFAULT");
+            if (levelStr != null && !levelStr.isEmpty()) {
+                LogLevel level = LogLevel.fromMethodName(levelStr);
+                if (level != null) {
+                    return level;
+                }
+            }
+        }
+        return LogLevel.DEBUG;
     }
 
     /**
@@ -670,7 +852,6 @@ public class LoggingOperation {
 
     /**
      * Checks if the logger is still used in the compilation unit.
-     * Used to determine if logger declaration and imports can be removed.
      */
     public boolean isLoggerUsedInCompilationUnit(CompilationUnit cu) {
         if (cu == null) {
@@ -684,7 +865,7 @@ public class LoggingOperation {
                 if (node.getExpression() != null &&
                     node.getExpression().toString().equals(loggerName)) {
                     found[0] = true;
-                    return false; // Stop visiting
+                    return false;
                 }
                 return true;
             }
@@ -695,7 +876,6 @@ public class LoggingOperation {
 
     /**
      * Gets the list of imports that should be removed when logger is removed.
-     * Based on the current template's imports.
      */
     public List<String> getLoggerImports() {
         List<String> imports = new ArrayList<>();
@@ -754,14 +934,10 @@ public class LoggingOperation {
     }
 
     /**
-     * Performs complete logger removal from a type:
-     * 1. Removes all log statements from all methods
-     * 2. Removes logger field declaration
-     * 3. Removes logger imports if logger is no longer used anywhere
+     * Performs complete logger removal from a type.
      */
     @SuppressWarnings("unchecked")
     public void removeLoggerComplete(ASTRewrite rewrite, TypeDeclaration type, CompilationUnit cu) {
-        // Remove log statements from all methods
         org.eclipse.jdt.core.dom.MethodDeclaration[] methods = type.getMethods();
         for (org.eclipse.jdt.core.dom.MethodDeclaration method : methods) {
             Block body = method.getBody();
@@ -770,11 +946,7 @@ public class LoggingOperation {
             }
         }
 
-        // Remove logger declaration
         removeLoggerDeclaration(rewrite, type);
-
-        // Check if logger is still used elsewhere (e.g., inner classes)
-        // For now, we'll remove imports - could be enhanced to check more thoroughly
         removeLoggerImports(rewrite, cu);
     }
 

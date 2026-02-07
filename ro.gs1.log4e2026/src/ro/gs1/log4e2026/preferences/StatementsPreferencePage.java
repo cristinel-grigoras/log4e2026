@@ -2,36 +2,33 @@ package ro.gs1.log4e2026.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import ro.gs1.log4e2026.Log4e2026Plugin;
+import ro.gs1.log4e2026.templates.Profile;
+import ro.gs1.log4e2026.templates.ProfileManager;
 
 /**
- * Preference page for log statement templates.
- * Supports all log levels: FINEST, FINER, TRACE, DEBUG, INFO, WARN, ERROR, FATAL.
+ * Preference page for log statement settings.
+ * Shows log level enabled flags (global preferences) and a read-only preview
+ * of the active profile's statement templates.
  */
 public class StatementsPreferencePage extends FieldEditorPreferencePage
         implements IWorkbenchPreferencePage, PreferenceKeys {
 
+    private Text previewText;
+
     public StatementsPreferencePage() {
         super(GRID);
         setPreferenceStore(Log4e2026Plugin.getDefault().getPreferenceStore());
-        setDescription("Log Statement Templates\n\n" +
-            "Available placeholders:\n" +
-            "  ${logger} - logger variable name\n" +
-            "  ${enclosing_method} - method signature\n" +
-            "  ${enclosing_type} - class name\n" +
-            "  ${delimiter} - message delimiter\n" +
-            "  ${message} - auto-generated message\n" +
-            "  ${message_user} - user-provided message\n" +
-            "  ${variables} - local variables\n" +
-            "  ${return_value} - return value\n" +
-            "  ${exception} - caught exception");
+        setDescription("Log Statement Settings");
     }
 
     @Override
@@ -39,7 +36,6 @@ public class StatementsPreferencePage extends FieldEditorPreferencePage
         // === Log Level Enabled Flags Section ===
         addSeparator("Log Level Settings");
 
-        // JUL-specific levels (FINEST, FINER)
         addField(new BooleanFieldEditor(
             FINEST_ENABLED,
             "Enable FINEST level (JUL only)",
@@ -52,7 +48,6 @@ public class StatementsPreferencePage extends FieldEditorPreferencePage
             getFieldEditorParent()
         ));
 
-        // Standard levels
         addField(new BooleanFieldEditor(
             TRACE_ENABLED,
             "Enable TRACE level",
@@ -95,109 +90,72 @@ public class StatementsPreferencePage extends FieldEditorPreferencePage
             getFieldEditorParent()
         ));
 
-        // === Statement Templates Section ===
-        addSeparator("Log Statement Templates");
+        // === Profile Statement Preview Section ===
+        Composite parent = getFieldEditorParent();
+        addSeparator("Active Profile Statement Templates (read-only)");
 
-        // JUL-specific levels
-        addField(new StringFieldEditor(
-            LOGGER_FINEST_STATEMENT,
-            "FINEST statement:",
-            getFieldEditorParent()
-        ));
+        Label infoLabel = new Label(parent, SWT.WRAP);
+        infoLabel.setText("Statement templates are defined per profile. Edit them via the Templates preference page.");
+        GridData infoGd = new GridData(GridData.FILL_HORIZONTAL);
+        infoGd.horizontalSpan = 2;
+        infoLabel.setLayoutData(infoGd);
 
-        addField(new StringFieldEditor(
-            LOGGER_FINER_STATEMENT,
-            "FINER statement:",
-            getFieldEditorParent()
-        ));
+        Group previewGroup = new Group(parent, SWT.NONE);
+        previewGroup.setText("Current Profile Templates");
+        previewGroup.setLayout(new org.eclipse.swt.layout.GridLayout(1, false));
+        GridData groupGd = new GridData(GridData.FILL_BOTH);
+        groupGd.horizontalSpan = 2;
+        groupGd.heightHint = 200;
+        previewGroup.setLayoutData(groupGd);
 
-        // Standard levels
-        addField(new StringFieldEditor(
-            LOGGER_TRACE_STATEMENT,
-            "TRACE statement:",
-            getFieldEditorParent()
-        ));
+        previewText = new Text(previewGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+        previewText.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-        addField(new StringFieldEditor(
-            LOGGER_DEBUG_STATEMENT,
-            "DEBUG statement:",
-            getFieldEditorParent()
-        ));
+        loadPreview();
+    }
 
-        addField(new StringFieldEditor(
-            LOGGER_INFO_STATEMENT,
-            "INFO statement:",
-            getFieldEditorParent()
-        ));
+    private void loadPreview() {
+        Profile profile = ProfileManager.getInstance().getCurrentProfile();
+        if (profile == null || previewText == null || previewText.isDisposed()) {
+            return;
+        }
 
-        addField(new StringFieldEditor(
-            LOGGER_WARN_STATEMENT,
-            "WARN statement:",
-            getFieldEditorParent()
-        ));
+        StringBuilder sb = new StringBuilder();
+        sb.append("Profile: ").append(profile.getTitle()).append("\n\n");
 
-        addField(new StringFieldEditor(
-            LOGGER_ERROR_STATEMENT,
-            "ERROR statement:",
-            getFieldEditorParent()
-        ));
+        sb.append("=== Log Statements ===\n");
+        appendSetting(sb, profile, "LOGGER_TRACE_STATEMENT", "TRACE");
+        appendSetting(sb, profile, "LOGGER_DEBUG_STATEMENT", "DEBUG");
+        appendSetting(sb, profile, "LOGGER_INFO_STATEMENT", "INFO");
+        appendSetting(sb, profile, "LOGGER_WARN_STATEMENT", "WARN");
+        appendSetting(sb, profile, "LOGGER_ERROR_STATEMENT", "ERROR");
+        appendSetting(sb, profile, "LOGGER_FATAL_STATEMENT", "FATAL");
+        appendSetting(sb, profile, "LOGGER_FINEST_STATEMENT", "FINEST");
+        appendSetting(sb, profile, "LOGGER_FINER_STATEMENT", "FINER");
 
-        addField(new StringFieldEditor(
-            LOGGER_FATAL_STATEMENT,
-            "FATAL statement:",
-            getFieldEditorParent()
-        ));
+        sb.append("\n=== Is-Enabled Checks ===\n");
+        appendSetting(sb, profile, "LOGGER_IS_TRACE_ENABLED_STATEMENT", "TRACE");
+        appendSetting(sb, profile, "LOGGER_IS_DEBUG_ENABLED_STATEMENT", "DEBUG");
+        appendSetting(sb, profile, "LOGGER_IS_INFO_ENABLED_STATEMENT", "INFO");
+        appendSetting(sb, profile, "LOGGER_IS_WARN_ENABLED_STATEMENT", "WARN");
+        appendSetting(sb, profile, "LOGGER_IS_ERROR_ENABLED_STATEMENT", "ERROR");
+        appendSetting(sb, profile, "LOGGER_IS_FATAL_ENABLED_STATEMENT", "FATAL");
+        appendSetting(sb, profile, "LOGGER_IS_FINEST_ENABLED_STATEMENT", "FINEST");
+        appendSetting(sb, profile, "LOGGER_IS_FINER_ENABLED_STATEMENT", "FINER");
 
-        // === Is-Enabled Check Statements Section ===
-        addSeparator("Is-Enabled Check Statements");
+        sb.append("\n=== Position Statements ===\n");
+        appendSetting(sb, profile, "LOGGER_POS_START_STATEMENT", "START");
+        appendSetting(sb, profile, "LOGGER_POS_END_STATEMENT", "END");
+        appendSetting(sb, profile, "LOGGER_POS_CATCH_STATEMENT", "CATCH");
 
-        addField(new StringFieldEditor(
-            LOGGER_IS_FINEST_ENABLED_STATEMENT,
-            "isFinestEnabled:",
-            getFieldEditorParent()
-        ));
+        previewText.setText(sb.toString());
+    }
 
-        addField(new StringFieldEditor(
-            LOGGER_IS_FINER_ENABLED_STATEMENT,
-            "isFinerEnabled:",
-            getFieldEditorParent()
-        ));
-
-        addField(new StringFieldEditor(
-            LOGGER_IS_TRACE_ENABLED_STATEMENT,
-            "isTraceEnabled:",
-            getFieldEditorParent()
-        ));
-
-        addField(new StringFieldEditor(
-            LOGGER_IS_DEBUG_ENABLED_STATEMENT,
-            "isDebugEnabled:",
-            getFieldEditorParent()
-        ));
-
-        addField(new StringFieldEditor(
-            LOGGER_IS_INFO_ENABLED_STATEMENT,
-            "isInfoEnabled:",
-            getFieldEditorParent()
-        ));
-
-        addField(new StringFieldEditor(
-            LOGGER_IS_WARN_ENABLED_STATEMENT,
-            "isWarnEnabled:",
-            getFieldEditorParent()
-        ));
-
-        addField(new StringFieldEditor(
-            LOGGER_IS_ERROR_ENABLED_STATEMENT,
-            "isErrorEnabled:",
-            getFieldEditorParent()
-        ));
-
-        addField(new StringFieldEditor(
-            LOGGER_IS_FATAL_ENABLED_STATEMENT,
-            "isFatalEnabled:",
-            getFieldEditorParent()
-        ));
+    private void appendSetting(StringBuilder sb, Profile profile, String key, String label) {
+        String value = profile.getString(key);
+        if (value != null && !value.isEmpty()) {
+            sb.append(label).append(": ").append(value).append("\n");
+        }
     }
 
     private void addSeparator(String text) {

@@ -24,6 +24,25 @@ org.slf4j.LoggerFactory</setting>
         <setting id="HAS_FATAL" type="Boolean">false</setting>
         <setting id="HAS_FINEST" type="Boolean">false</setting>
         <setting id="HAS_FINER" type="Boolean">false</setting>
+        <!-- Statement templates -->
+        <setting id="LOGGER_TRACE_STATEMENT" type="String">${logger}.trace("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_DEBUG_STATEMENT" type="String">${logger}.debug("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_INFO_STATEMENT" type="String">${logger}.info("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_WARN_STATEMENT" type="String">${logger}.warn("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_ERROR_STATEMENT" type="String">${logger}.error("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: " + ${exception})</setting>
+        <!-- Is-enabled check statements -->
+        <setting id="LOGGER_IS_TRACE_ENABLED_STATEMENT" type="String">${logger}.isTraceEnabled()</setting>
+        <setting id="LOGGER_IS_DEBUG_ENABLED_STATEMENT" type="String">${logger}.isDebugEnabled()</setting>
+        <setting id="LOGGER_IS_INFO_ENABLED_STATEMENT" type="String">${logger}.isInfoEnabled()</setting>
+        <setting id="LOGGER_IS_WARN_ENABLED_STATEMENT" type="String">${logger}.isWarnEnabled()</setting>
+        <setting id="LOGGER_IS_ERROR_ENABLED_STATEMENT" type="String">${logger}.isErrorEnabled()</setting>
+        <!-- Position-specific statements -->
+        <setting id="LOGGER_POS_START_STATEMENT" type="String">${logger}.debug("${enclosing_method}() - start")</setting>
+        <setting id="LOGGER_POS_END_STATEMENT" type="String">${logger}.debug("${enclosing_method}() - end")</setting>
+        <setting id="LOGGER_POS_CATCH_STATEMENT" type="String">${logger}.error("${enclosing_method}() - ${exception}", ${exception})</setting>
+        <setting id="LOGGER_POS_IS_START_STATEMENT" type="String">${logger}.isDebugEnabled()</setting>
+        <setting id="LOGGER_POS_IS_END_STATEMENT" type="String">${logger}.isDebugEnabled()</setting>
+        <setting id="LOGGER_POS_IS_CATCH_STATEMENT" type="String">${logger}.isErrorEnabled()</setting>
     </profile>
 
     <!-- Log4j 2 Profile -->
@@ -51,6 +70,27 @@ org.apache.logging.log4j.LogManager</setting>
         <setting id="HAS_FATAL" type="Boolean">true</setting>
         <setting id="HAS_FINEST" type="Boolean">false</setting>
         <setting id="HAS_FINER" type="Boolean">false</setting>
+        <!-- Statement templates -->
+        <setting id="LOGGER_TRACE_STATEMENT" type="String">${logger}.trace("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_DEBUG_STATEMENT" type="String">${logger}.debug("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_INFO_STATEMENT" type="String">${logger}.info("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_WARN_STATEMENT" type="String">${logger}.warn("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_ERROR_STATEMENT" type="String">${logger}.error("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: " + ${exception})</setting>
+        <setting id="LOGGER_FATAL_STATEMENT" type="String">${logger}.fatal("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: " + ${exception})</setting>
+        <!-- Is-enabled check statements -->
+        <setting id="LOGGER_IS_TRACE_ENABLED_STATEMENT" type="String">${logger}.isTraceEnabled()</setting>
+        <setting id="LOGGER_IS_DEBUG_ENABLED_STATEMENT" type="String">${logger}.isDebugEnabled()</setting>
+        <setting id="LOGGER_IS_INFO_ENABLED_STATEMENT" type="String">${logger}.isInfoEnabled()</setting>
+        <setting id="LOGGER_IS_WARN_ENABLED_STATEMENT" type="String">${logger}.isWarnEnabled()</setting>
+        <setting id="LOGGER_IS_ERROR_ENABLED_STATEMENT" type="String">${logger}.isErrorEnabled()</setting>
+        <setting id="LOGGER_IS_FATAL_ENABLED_STATEMENT" type="String">${logger}.isFatalEnabled()</setting>
+        <!-- Position-specific statements -->
+        <setting id="LOGGER_POS_START_STATEMENT" type="String">${logger}.debug("${enclosing_method}() - start")</setting>
+        <setting id="LOGGER_POS_END_STATEMENT" type="String">${logger}.debug("${enclosing_method}() - end")</setting>
+        <setting id="LOGGER_POS_CATCH_STATEMENT" type="String">${logger}.error("${enclosing_method}() - ${exception}", ${exception})</setting>
+        <setting id="LOGGER_POS_IS_START_STATEMENT" type="String">${logger}.isDebugEnabled()</setting>
+        <setting id="LOGGER_POS_IS_END_STATEMENT" type="String">${logger}.isDebugEnabled()</setting>
+        <setting id="LOGGER_POS_IS_CATCH_STATEMENT" type="String">${logger}.isErrorEnabled()</setting>
     </profile>
 
     <!-- JDK Logging (java.util.logging) Profile -->
@@ -59,13 +99,19 @@ org.apache.logging.log4j.LogManager</setting>
         <setting id="LOGGER_FACTORY" type="String">java.util.logging.Logger</setting>
         <setting id="LOGGER_FACTORY_METHOD" type="String">getLogger</setting>
         <setting id="LOGGER_DECLARATION" type="String">private static final Logger ${logger} = Logger.getLogger(${enclosing_type}.class.getName());</setting>
-        <setting id="LOGGER_IMPORTS" type="String">java.util.logging.Logger</setting>
+        <setting id="LOGGER_IMPORTS" type="String">java.util.logging.Logger
+java.util.logging.Level</setting>
         <setting id="LOG_METHOD_FINEST" type="String">finest</setting>
         <setting id="LOG_METHOD_FINER" type="String">finer</setting>
         <setting id="LOG_METHOD_FINE" type="String">fine</setting>
+        <setting id="LOG_METHOD_TRACE" type="String">fine</setting>
+        <setting id="LOG_METHOD_DEBUG" type="String">config</setting>
         <setting id="LOG_METHOD_INFO" type="String">info</setting>
+        <setting id="LOG_METHOD_WARN" type="String">warning</setting>
         <setting id="LOG_METHOD_WARNING" type="String">warning</setting>
+        <setting id="LOG_METHOD_ERROR" type="String">severe</setting>
         <setting id="LOG_METHOD_SEVERE" type="String">severe</setting>
+        <setting id="LOG_METHOD_FATAL" type="String">severe</setting>
         <setting id="LOG_PATTERN_START" type="String">${logger}.${level}("${enclosing_method}() - start");</setting>
         <setting id="LOG_PATTERN_END" type="String">${logger}.${level}("${enclosing_method}() - end");</setting>
         <setting id="LOG_PATTERN_CATCH" type="String">${logger}.severe("${enclosing_method}() - " + ${exception}.getMessage());</setting>
@@ -77,5 +123,28 @@ org.apache.logging.log4j.LogManager</setting>
         <setting id="HAS_FATAL" type="Boolean">false</setting>
         <setting id="HAS_FINEST" type="Boolean">true</setting>
         <setting id="HAS_FINER" type="Boolean">true</setting>
+        <!-- Statement templates (JUL uses level-style method calls) -->
+        <setting id="LOGGER_FINEST_STATEMENT" type="String">${logger}.finest("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_FINER_STATEMENT" type="String">${logger}.finer("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_TRACE_STATEMENT" type="String">${logger}.fine("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_DEBUG_STATEMENT" type="String">${logger}.config("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_INFO_STATEMENT" type="String">${logger}.info("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_WARN_STATEMENT" type="String">${logger}.warning("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}")</setting>
+        <setting id="LOGGER_ERROR_STATEMENT" type="String">${logger}.severe("${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: " + ${exception})</setting>
+        <!-- Is-enabled check statements (JUL uses isLoggable(Level.XXX)) -->
+        <setting id="LOGGER_IS_FINEST_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.FINEST)</setting>
+        <setting id="LOGGER_IS_FINER_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.FINER)</setting>
+        <setting id="LOGGER_IS_TRACE_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.FINE)</setting>
+        <setting id="LOGGER_IS_DEBUG_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.CONFIG)</setting>
+        <setting id="LOGGER_IS_INFO_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.INFO)</setting>
+        <setting id="LOGGER_IS_WARN_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.WARNING)</setting>
+        <setting id="LOGGER_IS_ERROR_ENABLED_STATEMENT" type="String">${logger}.isLoggable(Level.SEVERE)</setting>
+        <!-- Position-specific statements (JUL uses entering/exiting/throwing) -->
+        <setting id="LOGGER_POS_START_STATEMENT" type="String">${logger}.entering("${enclosing_type}", "${enclosing_method}")</setting>
+        <setting id="LOGGER_POS_END_STATEMENT" type="String">${logger}.exiting("${enclosing_type}", "${enclosing_method}")</setting>
+        <setting id="LOGGER_POS_CATCH_STATEMENT" type="String">${logger}.throwing("${enclosing_type}", "${enclosing_method}", ${exception})</setting>
+        <setting id="LOGGER_POS_IS_START_STATEMENT" type="String">${logger}.isLoggable(Level.FINER)</setting>
+        <setting id="LOGGER_POS_IS_END_STATEMENT" type="String">${logger}.isLoggable(Level.FINER)</setting>
+        <setting id="LOGGER_POS_IS_CATCH_STATEMENT" type="String">${logger}.isLoggable(Level.FINER)</setting>
     </profile>
 </profiles>

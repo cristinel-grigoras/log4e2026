@@ -572,12 +572,6 @@
             class="ro.gs1.log4e2026.preferences.ReplacePreferencePage">
       </page>
       <page
-            id="ro.gs1.log4e2026.preferences.profiles"
-            name="Profiles"
-            category="ro.gs1.log4e2026.preferences.main"
-            class="ro.gs1.log4e2026.preferences.ProfilePreferencesPage">
-      </page>
-      <page
             id="ro.gs1.log4e2026.preferences.templates"
             name="Templates"
             category="ro.gs1.log4e2026.preferences.main"

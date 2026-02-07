@@ -136,6 +136,22 @@ public class ProfileManager {
         slf4j.put("LOG_METHOD_INFO", "info");
         slf4j.put("LOG_METHOD_WARN", "warn");
         slf4j.put("LOG_METHOD_ERROR", "error");
+        slf4j.put("LOGGER_TRACE_STATEMENT", "${logger}.trace(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        slf4j.put("LOGGER_DEBUG_STATEMENT", "${logger}.debug(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        slf4j.put("LOGGER_INFO_STATEMENT", "${logger}.info(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        slf4j.put("LOGGER_WARN_STATEMENT", "${logger}.warn(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        slf4j.put("LOGGER_ERROR_STATEMENT", "${logger}.error(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: \" + ${exception})");
+        slf4j.put("LOGGER_IS_TRACE_ENABLED_STATEMENT", "${logger}.isTraceEnabled()");
+        slf4j.put("LOGGER_IS_DEBUG_ENABLED_STATEMENT", "${logger}.isDebugEnabled()");
+        slf4j.put("LOGGER_IS_INFO_ENABLED_STATEMENT", "${logger}.isInfoEnabled()");
+        slf4j.put("LOGGER_IS_WARN_ENABLED_STATEMENT", "${logger}.isWarnEnabled()");
+        slf4j.put("LOGGER_IS_ERROR_ENABLED_STATEMENT", "${logger}.isErrorEnabled()");
+        slf4j.put("LOGGER_POS_START_STATEMENT", "${logger}.debug(\"${enclosing_method}() - start\")");
+        slf4j.put("LOGGER_POS_END_STATEMENT", "${logger}.debug(\"${enclosing_method}() - end\")");
+        slf4j.put("LOGGER_POS_CATCH_STATEMENT", "${logger}.error(\"${enclosing_method}() - ${exception}\", ${exception})");
+        slf4j.put("LOGGER_POS_IS_START_STATEMENT", "${logger}.isDebugEnabled()");
+        slf4j.put("LOGGER_POS_IS_END_STATEMENT", "${logger}.isDebugEnabled()");
+        slf4j.put("LOGGER_POS_IS_CATCH_STATEMENT", "${logger}.isErrorEnabled()");
         profiles.addProfile(slf4j);
 
         // Log4j 2
@@ -151,6 +167,24 @@ public class ProfileManager {
         log4j2.put("LOG_METHOD_WARN", "warn");
         log4j2.put("LOG_METHOD_ERROR", "error");
         log4j2.put("LOG_METHOD_FATAL", "fatal");
+        log4j2.put("LOGGER_TRACE_STATEMENT", "${logger}.trace(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        log4j2.put("LOGGER_DEBUG_STATEMENT", "${logger}.debug(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        log4j2.put("LOGGER_INFO_STATEMENT", "${logger}.info(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        log4j2.put("LOGGER_WARN_STATEMENT", "${logger}.warn(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        log4j2.put("LOGGER_ERROR_STATEMENT", "${logger}.error(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: \" + ${exception})");
+        log4j2.put("LOGGER_FATAL_STATEMENT", "${logger}.fatal(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: \" + ${exception})");
+        log4j2.put("LOGGER_IS_TRACE_ENABLED_STATEMENT", "${logger}.isTraceEnabled()");
+        log4j2.put("LOGGER_IS_DEBUG_ENABLED_STATEMENT", "${logger}.isDebugEnabled()");
+        log4j2.put("LOGGER_IS_INFO_ENABLED_STATEMENT", "${logger}.isInfoEnabled()");
+        log4j2.put("LOGGER_IS_WARN_ENABLED_STATEMENT", "${logger}.isWarnEnabled()");
+        log4j2.put("LOGGER_IS_ERROR_ENABLED_STATEMENT", "${logger}.isErrorEnabled()");
+        log4j2.put("LOGGER_IS_FATAL_ENABLED_STATEMENT", "${logger}.isFatalEnabled()");
+        log4j2.put("LOGGER_POS_START_STATEMENT", "${logger}.debug(\"${enclosing_method}() - start\")");
+        log4j2.put("LOGGER_POS_END_STATEMENT", "${logger}.debug(\"${enclosing_method}() - end\")");
+        log4j2.put("LOGGER_POS_CATCH_STATEMENT", "${logger}.error(\"${enclosing_method}() - ${exception}\", ${exception})");
+        log4j2.put("LOGGER_POS_IS_START_STATEMENT", "${logger}.isDebugEnabled()");
+        log4j2.put("LOGGER_POS_IS_END_STATEMENT", "${logger}.isDebugEnabled()");
+        log4j2.put("LOGGER_POS_IS_CATCH_STATEMENT", "${logger}.isErrorEnabled()");
         profiles.addProfile(log4j2);
 
         // JDK Logging
@@ -159,13 +193,38 @@ public class ProfileManager {
         jul.put("LOGGER_FACTORY", "java.util.logging.Logger");
         jul.put("LOGGER_FACTORY_METHOD", "getLogger");
         jul.put("LOGGER_DECLARATION", "private static final Logger ${logger} = Logger.getLogger(${enclosing_type}.class.getName());");
-        jul.put("LOGGER_IMPORTS", "java.util.logging.Logger");
+        jul.put("LOGGER_IMPORTS", "java.util.logging.Logger\njava.util.logging.Level");
         jul.put("LOG_METHOD_FINEST", "finest");
         jul.put("LOG_METHOD_FINER", "finer");
         jul.put("LOG_METHOD_FINE", "fine");
+        jul.put("LOG_METHOD_TRACE", "fine");
+        jul.put("LOG_METHOD_DEBUG", "config");
         jul.put("LOG_METHOD_INFO", "info");
+        jul.put("LOG_METHOD_WARN", "warning");
         jul.put("LOG_METHOD_WARNING", "warning");
+        jul.put("LOG_METHOD_ERROR", "severe");
         jul.put("LOG_METHOD_SEVERE", "severe");
+        jul.put("LOG_METHOD_FATAL", "severe");
+        jul.put("LOGGER_FINEST_STATEMENT", "${logger}.finest(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        jul.put("LOGGER_FINER_STATEMENT", "${logger}.finer(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        jul.put("LOGGER_TRACE_STATEMENT", "${logger}.fine(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        jul.put("LOGGER_DEBUG_STATEMENT", "${logger}.config(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        jul.put("LOGGER_INFO_STATEMENT", "${logger}.info(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        jul.put("LOGGER_WARN_STATEMENT", "${logger}.warning(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}\")");
+        jul.put("LOGGER_ERROR_STATEMENT", "${logger}.severe(\"${enclosing_method}${delimiter}${message}${delimiter}${message_user}${delimiter}${variables}${delimiter}${return_value}${delimiter_msg}exception: \" + ${exception})");
+        jul.put("LOGGER_IS_FINEST_ENABLED_STATEMENT", "${logger}.isLoggable(Level.FINEST)");
+        jul.put("LOGGER_IS_FINER_ENABLED_STATEMENT", "${logger}.isLoggable(Level.FINER)");
+        jul.put("LOGGER_IS_TRACE_ENABLED_STATEMENT", "${logger}.isLoggable(Level.FINE)");
+        jul.put("LOGGER_IS_DEBUG_ENABLED_STATEMENT", "${logger}.isLoggable(Level.CONFIG)");
+        jul.put("LOGGER_IS_INFO_ENABLED_STATEMENT", "${logger}.isLoggable(Level.INFO)");
+        jul.put("LOGGER_IS_WARN_ENABLED_STATEMENT", "${logger}.isLoggable(Level.WARNING)");
+        jul.put("LOGGER_IS_ERROR_ENABLED_STATEMENT", "${logger}.isLoggable(Level.SEVERE)");
+        jul.put("LOGGER_POS_START_STATEMENT", "${logger}.entering(\"${enclosing_type}\", \"${enclosing_method}\")");
+        jul.put("LOGGER_POS_END_STATEMENT", "${logger}.exiting(\"${enclosing_type}\", \"${enclosing_method}\")");
+        jul.put("LOGGER_POS_CATCH_STATEMENT", "${logger}.throwing(\"${enclosing_type}\", \"${enclosing_method}\", ${exception})");
+        jul.put("LOGGER_POS_IS_START_STATEMENT", "${logger}.isLoggable(Level.FINER)");
+        jul.put("LOGGER_POS_IS_END_STATEMENT", "${logger}.isLoggable(Level.FINER)");
+        jul.put("LOGGER_POS_IS_CATCH_STATEMENT", "${logger}.isLoggable(Level.FINER)");
         profiles.addProfile(jul);
     }
 

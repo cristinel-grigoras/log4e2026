@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Log4E 2026 Tests
 Bundle-SymbolicName: ro.gs1.log4e2026.tests
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: GS1 Romania
-Fragment-Host: ro.gs1.log4e2026;bundle-version="1.0.0"
+Fragment-Host: ro.gs1.log4e2026;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: ro.gs1.log4e2026.tests
 Require-Bundle: org.junit;bundle-version="4.13",

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Log4E 2026
 Bundle-SymbolicName: ro.gs1.log4e2026;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: ro.gs1.log4e2026.Log4e2026Plugin
 Bundle-Vendor: GS1 Romania
 Require-Bundle: org.eclipse.ui,

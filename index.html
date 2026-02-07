@@ -42,12 +42,22 @@
         .frameworks { border-collapse: collapse; margin: 10px 0; }
         .frameworks th { background: #f4f4f4; }
         .requirements { background: #fff8e1; border-left: 4px solid #f0ad4e; padding: 10px 16px; margin: 10px 0; }
+        .wip-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 8px 16px;
+            margin: 10px 0 16px 0;
+            font-weight: bold;
+            color: #856404;
+        }
         footer { margin-top: 40px; color: #888; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 10px; }
     </style>
 </head>
 <body>
     <h1>Log4E 2026</h1>
-    <p>Eclipse plugin for automatic logging statement insertion. Supports multiple logging frameworks with configurable templates, profiles, and keyboard shortcuts.</p>
+    <div class="wip-banner">Work in progress</div>
+    <p>This is a port of the original <a href="http://log4e.jayefem.de/">Log4E</a> plugin by Jayefem to modern Eclipse and Java 21. The original plugin is no longer maintained and incompatible with recent Eclipse versions. This project re-implements it using current Eclipse APIs.</p>
 
     <h2>Installation</h2>
     <ol>
@@ -103,6 +113,7 @@
 
     <footer>
         <p>Source code: <a href="https://github.com/cristinel-grigoras/log4e2026">github.com/cristinel-grigoras/log4e2026</a></p>
+        <p>Based on the original <a href="http://log4e.jayefem.de/">Log4E</a> plugin by Jayefem.</p>
     </footer>
 </body>
 </html>

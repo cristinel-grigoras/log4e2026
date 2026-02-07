@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log4E 2026 - Eclipse Update Site</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #2c3e50; margin-top: 30px; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+        .url-box {
+            background: #eaf4fc;
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-family: monospace;
+            font-size: 1.05em;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        ol li { margin-bottom: 8px; }
+        .feature-list { list-style: none; padding: 0; }
+        .feature-list li::before { content: "\2713\0020"; color: #27ae60; font-weight: bold; }
+        .frameworks td, .frameworks th {
+            padding: 6px 16px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .frameworks { border-collapse: collapse; margin: 10px 0; }
+        .frameworks th { background: #f4f4f4; }
+        .requirements { background: #fff8e1; border-left: 4px solid #f0ad4e; padding: 10px 16px; margin: 10px 0; }
+        footer { margin-top: 40px; color: #888; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Log4E 2026</h1>
+    <p>Eclipse plugin for automatic logging statement insertion. Supports multiple logging frameworks with configurable templates, profiles, and keyboard shortcuts.</p>
+
+    <h2>Installation</h2>
+    <ol>
+        <li>Open Eclipse and go to <strong>Help &gt; Install New Software...</strong></li>
+        <li>Click <strong>Add...</strong> to add a new repository</li>
+        <li>Enter the following URL:</li>
+    </ol>
+    <div class="url-box">https://cristinel-grigoras.github.io/log4e2026/</div>
+    <ol start="4">
+        <li>Select <strong>Log4E 2026</strong> from the list</li>
+        <li>Click <strong>Next</strong> and follow the installation wizard</li>
+        <li>Restart Eclipse when prompted</li>
+    </ol>
+
+    <h2>Supported Frameworks</h2>
+    <table class="frameworks">
+        <tr><th>Framework</th><th>Logger Type</th></tr>
+        <tr><td>SLF4J</td><td>org.slf4j.Logger</td></tr>
+        <tr><td>Log4j 2</td><td>org.apache.logging.log4j.Logger</td></tr>
+        <tr><td>JDK Logging (JUL)</td><td>java.util.logging.Logger</td></tr>
+    </table>
+
+    <h2>Features</h2>
+    <ul class="feature-list">
+        <li>Declare logger field with one shortcut</li>
+        <li>Insert log statements at method entry, exit, and catch blocks</li>
+        <li>Log individual variables or entire methods/classes</li>
+        <li>Substitute System.out/err with logger calls</li>
+        <li>Exchange logging framework across files</li>
+        <li>Configurable log levels, templates, and profiles</li>
+        <li>Project-level and workspace-level preferences</li>
+        <li>Preview wizard for reviewing changes before applying</li>
+    </ul>
+
+    <h2>Keyboard Shortcuts</h2>
+    <table class="frameworks">
+        <tr><th>Action</th><th>Shortcut</th></tr>
+        <tr><td>Declare Logger</td><td><code>Ctrl+Alt+D</code></td></tr>
+        <tr><td>Insert Log Statement</td><td><code>Ctrl+Alt+L</code></td></tr>
+        <tr><td>Log this Variable</td><td><code>Ctrl+Alt+P</code></td></tr>
+        <tr><td>Log at this Position</td><td><code>Ctrl+Alt+O</code></td></tr>
+        <tr><td>Log this Method</td><td><code>Ctrl+Alt+I</code></td></tr>
+        <tr><td>Log this Class</td><td><code>Ctrl+Alt+U</code></td></tr>
+        <tr><td>Log Errors of Method</td><td><code>Ctrl+Alt+R</code></td></tr>
+        <tr><td>Log Errors of Class</td><td><code>Ctrl+Alt+E</code></td></tr>
+        <tr><td>Substitute in Method</td><td><code>Ctrl+Alt+S</code></td></tr>
+        <tr><td>Substitute in Class</td><td><code>Ctrl+Alt+A</code></td></tr>
+    </table>
+
+    <div class="requirements">
+        <strong>Requirements:</strong> Eclipse 2025-12 or later, Java 21+
+    </div>
+
+    <footer>
+        <p>Source code: <a href="https://github.com/cristinel-grigoras/log4e2026">github.com/cristinel-grigoras/log4e2026</a></p>
+    </footer>
+</body>
+</html>

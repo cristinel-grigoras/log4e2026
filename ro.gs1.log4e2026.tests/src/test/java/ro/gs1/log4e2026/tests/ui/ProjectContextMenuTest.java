@@ -208,13 +208,13 @@ public class ProjectContextMenuTest {
 		// Capture screenshot BEFORE context menu click
 		String screenshotDir = System.getProperty("screenshot.dir", "target/screenshots") + "/";
 		new java.io.File(screenshotDir).mkdirs();
-		bot.captureScreenshot(screenshotDir + "contextmenu_01_before.png");
+		org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(screenshotDir + "contextmenu_01_before.png");
 		System.out.println("Screenshot saved: " + screenshotDir + "contextmenu_01_before.png");
 
 		// Open context menu on project and capture screenshot to verify it's correct
 		// menu
 		SWTBotRootMenu contextMenu = projectItem.contextMenu();
-		bot.captureScreenshot(screenshotDir + "contextmenu_02_menu_open.png");
+		org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(screenshotDir + "contextmenu_02_menu_open.png");
 		System.out.println("Screenshot saved: " + screenshotDir + "contextmenu_02_menu_open.png");
 
 		// List menu items to verify
@@ -232,7 +232,7 @@ public class ProjectContextMenuTest {
 		log("3.4 clicked context menu Properties");
 
 		// Capture screenshot AFTER context menu click
-		bot.captureScreenshot(screenshotDir + "contextmenu_03_after.png");
+		org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(screenshotDir + "contextmenu_03_after.png");
 		System.out.println("Screenshot saved: " + screenshotDir + "contextmenu_03_after.png");
 
 		// Check shells after - should NOT increase (opens view, not dialog)

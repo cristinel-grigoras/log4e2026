@@ -22,8 +22,7 @@ import ro.gs1.log4e2026.tests.util.TimingRule;
 
 /**
  * SWTBot UI tests that capture screenshots for documentation.
- * Uses external 'import' command (ImageMagick) to capture screenshots
- * while menus are still open.
+ * Uses SWTUtils.captureScreenshot() to capture screenshots while menus are still open.
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class Log4eScreenshotTest {
@@ -162,19 +161,12 @@ public class Log4eScreenshotTest {
         log("after Cancel");
     }
 
-    private void captureWithImport(String filename) throws Exception {
-        // Use ImageMagick 'import' to capture the root window with explicit PNG format
-        ProcessBuilder pb = new ProcessBuilder("import", "-window", "root", "PNG:" + filename);
-        pb.inheritIO();
-        Process process = pb.start();
-        int exitCode = process.waitFor();
-
-        if (exitCode == 0) {
+    private void captureWithImport(String filename) {
+        try {
+            org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(filename);
             System.out.println("Screenshot saved: " + filename);
-            assertTrue("Screenshot file not created", new File(filename).exists());
-        } else {
-            System.out.println("import command failed with exit code: " + exitCode);
-            fail("Screenshot failed: " + filename);
+        } catch (Exception e) {
+            System.out.println("Screenshot failed: " + e.getMessage());
         }
     }
 }

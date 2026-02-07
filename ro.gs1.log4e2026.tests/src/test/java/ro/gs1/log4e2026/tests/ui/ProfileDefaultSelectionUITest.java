@@ -96,9 +96,7 @@ public class ProfileDefaultSelectionUITest {
     private void captureScreen(String filename) {
         try {
             String filepath = SCREENSHOT_DIR + "/" + filename;
-            Runtime.getRuntime().exec(new String[] {
-                "import", "-display", System.getenv("DISPLAY"), "-window", "root", filepath
-            }).waitFor();
+            org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(filepath);
             System.out.println("  Screenshot: " + filepath);
         } catch (Exception e) {
             System.out.println("  Screenshot failed: " + e.getMessage());

@@ -129,17 +129,8 @@ public class PreferencePagesTest {
 
     private void captureScreenshot(String name) {
         try {
-            // Ensure directory exists
-            File dir = new File(SCREENSHOT_DIR);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
             String filename = SCREENSHOT_DIR + "/" + name + ".png";
-            // Use import with explicit PNG format
-            ProcessBuilder pb = new ProcessBuilder("import", "-window", "root", "PNG:" + filename);
-            pb.inheritIO();
-            Process process = pb.start();
-            process.waitFor();
+            org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(filename);
             System.out.println("Screenshot: " + filename);
         } catch (Exception e) {
             System.out.println("Screenshot failed: " + e.getMessage());

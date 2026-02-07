@@ -79,20 +79,10 @@ public class Log4ePreferencePageUITest {
     private void captureScreen(String filename) {
         String filepath = SCREENSHOT_DIR + "/" + filename;
         try {
-            // Use SWTBot's synchronous screenshot capture to capture menus while open
             org.eclipse.swtbot.swt.finder.utils.SWTUtils.captureScreenshot(filepath);
             System.out.println("  Screenshot: " + filepath);
         } catch (Exception e) {
             System.out.println("  Screenshot failed: " + e.getMessage());
-            // Fallback to import command
-            try {
-                Runtime.getRuntime().exec(new String[] {
-                    "import", "-display", System.getenv("DISPLAY"), "-window", "root", filepath
-                }).waitFor();
-                System.out.println("  Screenshot (fallback): " + filepath);
-            } catch (Exception e2) {
-                System.out.println("  Screenshot fallback also failed: " + e2.getMessage());
-            }
         }
     }
 

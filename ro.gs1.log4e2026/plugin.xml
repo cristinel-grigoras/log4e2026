@@ -87,6 +87,36 @@
             name="Exchange logging framework"
             categoryId="ro.gs1.log4e2026.commands.category">
       </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logMethodResource"
+            name="Log this method (Resource)"
+            description="Add entry/exit/catch logging to method selected in Package Explorer"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.logErrorsMethodResource"
+            name="Log errors of this method (Resource)"
+            description="Add error logging to catch blocks of method selected in Package Explorer"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.reapplyMethodResource"
+            name="Reapply in this method (Resource)"
+            description="Remove and re-add logging in method selected in Package Explorer"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.removeLoggerMethodResource"
+            name="Remove logger in method (Resource)"
+            description="Remove log statements from method selected in Package Explorer"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
+      <command
+            id="ro.gs1.log4e2026.commands.substituteMethodResource"
+            name="Substitute System.out in method (Resource)"
+            description="Replace System.out/err with logger calls in method selected in Package Explorer"
+            categoryId="ro.gs1.log4e2026.commands.category">
+      </command>
    </extension>
 
    <extension point="org.eclipse.ui.handlers">
@@ -153,6 +183,26 @@
       <handler
             commandId="ro.gs1.log4e2026.commands.exchangeFramework"
             class="ro.gs1.log4e2026.handlers.ExchangeFrameworkHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logMethodResource"
+            class="ro.gs1.log4e2026.handlers.LogMethodResourceHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.logErrorsMethodResource"
+            class="ro.gs1.log4e2026.handlers.LogErrorsMethodResourceHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.reapplyMethodResource"
+            class="ro.gs1.log4e2026.handlers.ReapplyMethodResourceHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.removeLoggerMethodResource"
+            class="ro.gs1.log4e2026.handlers.RemoveLoggerMethodResourceHandler">
+      </handler>
+      <handler
+            commandId="ro.gs1.log4e2026.commands.substituteMethodResource"
+            class="ro.gs1.log4e2026.handlers.SubstituteMethodResourceHandler">
       </handler>
    </extension>
 
@@ -491,6 +541,57 @@
                   </or>
                </visibleWhen>
             </command>
+            <separator name="log4e.packageexplorer.separator1"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logMethodResource"
+                  label="Log this method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logErrorsMethodResource"
+                  label="Log errors of this method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.reapplyMethodResource"
+                  label="Reapply in this method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.removeLoggerMethodResource"
+                  label="Remove logger in method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.substituteMethodResource"
+                  label="Substitute System.out in method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
          </menu>
       </menuContribution>
       <!-- Project Explorer context menu -->
@@ -519,6 +620,57 @@
                         <instanceof value="org.eclipse.jdt.core.IJavaProject"/>
                      </iterate>
                   </or>
+               </visibleWhen>
+            </command>
+            <separator name="log4e.projectexplorer.separator1"/>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logMethodResource"
+                  label="Log this method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.logErrorsMethodResource"
+                  label="Log errors of this method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.reapplyMethodResource"
+                  label="Reapply in this method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.removeLoggerMethodResource"
+                  label="Remove logger in method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="ro.gs1.log4e2026.commands.substituteMethodResource"
+                  label="Substitute System.out in method"
+                  style="push">
+               <visibleWhen checkEnabled="false">
+                  <iterate ifEmpty="false">
+                     <instanceof value="org.eclipse.jdt.core.IMethod"/>
+                  </iterate>
                </visibleWhen>
             </command>
          </menu>

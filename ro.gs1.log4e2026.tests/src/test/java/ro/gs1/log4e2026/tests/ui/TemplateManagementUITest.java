@@ -48,7 +48,7 @@ public class TemplateManagementUITest {
             dir.mkdirs();
         }
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
     }
 
     @AfterClass
@@ -112,7 +112,7 @@ public class TemplateManagementUITest {
      */
     private void openTemplatesPreferencePage() {
         bot.menu("Window").menu("Preferences...").click();
-        bot.waitUntil(Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
 
         SWTBotTreeItem log4eItem = bot.tree().getTreeItem("Log4E 2026");
         log4eItem.expand();
@@ -306,23 +306,24 @@ public class TemplateManagementUITest {
             log("05.3 Duplicate clicked");
 
             // Wait for input dialog
-            bot.waitUntil(Conditions.shellIsActive("Duplicate Profile"), 5000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Duplicate Profile"), 1000);
             log("05.4 Duplicate dialog opened");
 
             captureScreen("template_05_duplicate_dialog.png");
 
-            // Enter new name
+            // Enter new name - use selectAll + typeText to trigger validation
             SWTBotText nameText = bot.text(0);
-            nameText.setText("My Custom SLF4J");
+            nameText.selectAll();
+            nameText.typeText("My Custom SLF4J");
             log("05.5 Name entered");
 
             // Click OK
+            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.button("OK")), 1000);
             bot.button("OK").click();
             log("05.6 OK clicked");
 
             // Wait for Preferences shell to become active again
-            bot.waitUntil(Conditions.shellIsActive("Preferences"), 5000);
-            bot.sleep(500); // Wait for UI update
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
 
             // Re-navigate to get the combo on the active shell
             SWTBotShell prefShell = bot.shell("Preferences");
@@ -378,13 +379,11 @@ public class TemplateManagementUITest {
 
             // Select SLF4J first
             profileCombo.setSelection(slf4jIndex);
-            bot.sleep(500);
             String selection1 = profileCombo.getText();
             log("06.2 SLF4J selected: " + selection1);
 
             // Select Log4j 2
             profileCombo.setSelection(log4j2Index);
-            bot.sleep(500);
             String selection2 = profileCombo.getText();
             log("06.3 Log4j 2 selected: " + selection2);
 
@@ -419,10 +418,10 @@ public class TemplateManagementUITest {
                     break;
                 }
             }
-            bot.sleep(300);
             log("07.2 SLF4J selected");
 
             // Click View/Edit button
+            int shellCount = bot.shells().length;
             try {
                 bot.button("View...").click();
             } catch (WidgetNotFoundException e) {
@@ -430,8 +429,8 @@ public class TemplateManagementUITest {
             }
             log("07.3 Edit/View clicked");
 
-            // Wait for edit dialog - use shell that starts with "Edit Profile:"
-            bot.sleep(500);
+            // Wait for edit dialog to appear
+            TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 1000);
             SWTBotShell editShell = null;
             for (SWTBotShell shell : bot.shells()) {
                 if (shell.getText().startsWith("Edit Profile:")) {
@@ -486,17 +485,17 @@ public class TemplateManagementUITest {
                     break;
                 }
             }
-            bot.sleep(300);
 
             // Click View/Edit
+            int shellCount = bot.shells().length;
             try {
                 bot.button("View...").click();
             } catch (WidgetNotFoundException e) {
                 bot.button("Edit...").click();
             }
 
-            // Wait for edit dialog - use shell that starts with "Edit Profile:"
-            bot.sleep(500);
+            // Wait for edit dialog to appear
+            TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 1000);
             SWTBotShell editShell = null;
             for (SWTBotShell shell : bot.shells()) {
                 if (shell.getText().startsWith("Edit Profile:")) {

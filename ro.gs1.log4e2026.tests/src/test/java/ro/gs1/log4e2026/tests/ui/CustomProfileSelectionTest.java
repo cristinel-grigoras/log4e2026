@@ -90,18 +90,23 @@ public class CustomProfileSelectionTest {
     }
 
     /**
-     * Open project properties dialog using Alt+Enter shortcut.
+     * Open project properties dialog using Project menu.
      */
     private SWTBotShell openProjectProperties(SWTBotTreeItem projectItem) {
-        // Use Alt+Enter shortcut - most reliable way to open Properties dialog
-        projectItem.setFocus();
-        bot.activeShell().pressShortcut(org.eclipse.swt.SWT.ALT, org.eclipse.swt.SWT.CR);
-        log("openProjectProperties: used Alt+Enter");
+        log("openProjectProperties: start");
 
-        // Wait for Properties dialog using proper condition
+        // Select and focus the project item
+        projectItem.select();
+        log("openProjectProperties: project selected");
+
+        // Use File > Properties menu (works when project is selected in Project Explorer)
+        bot.menu("File").menu("Properties").click();
+        log("openProjectProperties: File > Properties menu clicked");
+
+        // Wait for Properties dialog
         String expectedTitle = "Properties for " + PROJECT_NAME;
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive(expectedTitle), 600);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive(expectedTitle), 1000);
             log("openProjectProperties: dialog opened");
             return bot.shell(expectedTitle);
         } catch (Exception e) {

@@ -38,7 +38,7 @@ public class PreviewWizardTest {
     @BeforeClass
     public static void setUpClass() {
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
         SWTBotPreferences.PLAYBACK_DELAY = 0;
         SWTBotPreferences.TYPE_INTERVAL = 0;
         bot = new SWTWorkbenchBot();
@@ -61,7 +61,7 @@ public class PreviewWizardTest {
                 deleteShell.activate();
                 bot.checkBox("Delete project contents on disk (cannot be undone)").click();
                 bot.button("OK").click();
-                bot.waitUntil(Conditions.shellCloses(deleteShell), 10000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
             } catch (Exception e) {
                 System.out.println("Cleanup failed: " + e.getMessage());
             }
@@ -92,31 +92,31 @@ public class PreviewWizardTest {
         log("1.0 start - create Java project");
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Java Project");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
         javaNode.getNode("Java Project").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 
         bot.textWithLabel("Project name:").setText(PROJECT_NAME);
         bot.button("Finish").click();
 
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
             bot.button("No").click();
         } catch (Exception e) {
             // Dialog may not appear
         }
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
         assertNotNull(bot.tree().getTreeItem(PROJECT_NAME));
         projectCreated = true;
         log("1.1 project created");
@@ -134,28 +134,28 @@ public class PreviewWizardTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText(CLASS_NAME);
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
 
         // Set simple class content
         SWTBotEditor editor = bot.editorByTitle(CLASS_NAME + ".java");
@@ -184,7 +184,7 @@ public class PreviewWizardTest {
 
         // Open preferences
         bot.menu("Window").menu("Preferences...").click();
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
         log("3.1 opened Preferences");
 
         // Navigate to Log4E preferences
@@ -251,8 +251,8 @@ public class PreviewWizardTest {
             log("4.2 clicked Declare Logger via Edit menu");
         }
 
-        // Wait for wizard dialog
-        bot.sleep(500);
+        // Wait for wizard dialog to appear
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Log4E - Declare Logger"), 1000);
 
         // Check if wizard appeared
         try {
@@ -267,12 +267,13 @@ public class PreviewWizardTest {
             bot.button("Apply Changes").click();
             log("4.4 applied changes");
 
+            // Wait for wizard dialog to close
+            TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
+
         } catch (Exception e) {
             System.out.println("Wizard dialog not found: " + e.getMessage());
             // Wizard may not have appeared, continue anyway
         }
-
-        bot.sleep(500);
 
         // Verify logger was added
         styledText.setFocus();
@@ -297,7 +298,7 @@ public class PreviewWizardTest {
 
         // Open preferences
         bot.menu("Window").menu("Preferences...").click();
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
 
         // Navigate to Log4E preferences
         SWTBotTreeItem log4eNode = bot.tree().getTreeItem("Log4E 2026");
@@ -324,7 +325,7 @@ public class PreviewWizardTest {
             SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
             project.select();
             project.contextMenu("Delete").click();
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 1000);
             bot.checkBox("Delete project contents on disk (cannot be undone)").click();
             bot.button("OK").click();
             projectCreated = false;

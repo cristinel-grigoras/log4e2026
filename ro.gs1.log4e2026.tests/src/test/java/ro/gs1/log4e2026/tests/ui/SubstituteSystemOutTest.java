@@ -39,7 +39,7 @@ public class SubstituteSystemOutTest {
     @BeforeClass
     public static void setUpClass() {
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 500;
+        SWTBotPreferences.TIMEOUT = 1000;
         SWTBotPreferences.PLAYBACK_DELAY = 0;
         SWTBotPreferences.TYPE_INTERVAL = 0;
         bot = new SWTWorkbenchBot();
@@ -62,7 +62,7 @@ public class SubstituteSystemOutTest {
                 deleteShell.activate();
                 bot.checkBox("Delete project contents on disk (cannot be undone)").click();
                 bot.button("OK").click();
-                bot.waitUntil(Conditions.shellCloses(deleteShell), 10000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
             } catch (Exception e) {
                 System.out.println("Cleanup failed: " + e.getMessage());
             }
@@ -103,31 +103,31 @@ public class SubstituteSystemOutTest {
         log("1.0 start - create Java project");
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Java Project");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
         javaNode.getNode("Java Project").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 
         bot.textWithLabel("Project name:").setText(PROJECT_NAME);
         bot.button("Finish").click();
 
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
             bot.button("No").click();
         } catch (Exception e) {
             // Dialog may not appear
         }
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
         assertNotNull(bot.tree().getTreeItem(PROJECT_NAME));
         projectCreated = true;
         log("1.1 project created");
@@ -145,28 +145,28 @@ public class SubstituteSystemOutTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText(CLASS_NAME);
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
 
         // Set class content with System.out calls
         SWTBotEditor editor = bot.editorByTitle(CLASS_NAME + ".java");
@@ -230,7 +230,7 @@ public class SubstituteSystemOutTest {
             }
         }
 
-        bot.sleep(500);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(styledText), 1000);
         try {
             SWTBotShell activeShell = bot.activeShell();
             if (!activeShell.getText().contains(PROJECT_NAME)) {
@@ -292,7 +292,7 @@ public class SubstituteSystemOutTest {
             }
         }
 
-        bot.sleep(1000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
         editor.save();
 
         String contentAfter = styledText.getText();
@@ -368,7 +368,7 @@ public class SubstituteSystemOutTest {
             }
         }
 
-        bot.sleep(1500);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
         styledText.setFocus();
 
         String contentAfter = styledText.getText();
@@ -414,28 +414,28 @@ public class SubstituteSystemOutTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText("ContextMenuTestClass");
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, "ContextMenuTestClass.java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, "ContextMenuTestClass.java"), 1000);
         log("6.1 created ContextMenuTestClass");
 
         // Set class content with System.out calls
@@ -462,7 +462,6 @@ public class SubstituteSystemOutTest {
 
         styledText.setText(classContent);
         editor.save();
-        bot.sleep(300);
         log("6.2 set class content");
 
         String contentBefore = styledText.getText();
@@ -500,7 +499,7 @@ public class SubstituteSystemOutTest {
             return;
         }
 
-        bot.sleep(1500);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
         styledText.setFocus();
 
         String contentAfter = styledText.getText();
@@ -540,7 +539,7 @@ public class SubstituteSystemOutTest {
             SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
             project.select();
             project.contextMenu("Delete").click();
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 1000);
             bot.checkBox("Delete project contents on disk (cannot be undone)").click();
             bot.button("OK").click();
             projectCreated = false;

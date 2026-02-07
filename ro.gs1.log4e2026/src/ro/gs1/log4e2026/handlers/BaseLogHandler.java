@@ -1,17 +1,25 @@
 package ro.gs1.log4e2026.handlers;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -26,6 +34,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import ro.gs1.log4e2026.Log4e2026Plugin;
 import ro.gs1.log4e2026.operations.LoggingOperation;
 import ro.gs1.log4e2026.operations.OperationContext;
+import ro.gs1.log4e2026.preferences.ProjectPreferences;
+import ro.gs1.log4e2026.templates.LoggerTemplate;
+import ro.gs1.log4e2026.templates.LoggerTemplates;
 import ro.gs1.log4e2026.wizard.ChangeElement;
 import ro.gs1.log4e2026.wizard.LoggerWizardDialog;
 
@@ -66,6 +77,19 @@ public abstract class BaseLogHandler extends AbstractHandler {
             // Get the document
             IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
 
+            // Auto-declare logger if needed (before the operation)
+            if (shouldAutoDeclare()) {
+                int lengthBefore = document.getLength();
+                boolean declared = ensureLoggerDeclared(compilationUnit, document);
+                if (declared) {
+                    // Adjust offset to account for added imports and field declaration
+                    int delta = document.getLength() - lengthBefore;
+                    offset += delta;
+                    // Reconcile the compilation unit with document changes
+                    compilationUnit.reconcile(ICompilationUnit.NO_AST, false, null, null);
+                }
+            }
+
             // Check if wizard preview is enabled
             String wizardPref = getWizardPreferenceKey();
             boolean showWizard = wizardPref != null && Log4e2026Plugin.getPreferences().getBoolean(wizardPref);
@@ -85,6 +109,14 @@ public abstract class BaseLogHandler extends AbstractHandler {
         }
 
         return null;
+    }
+
+    /**
+     * Check if automatic logger declaration should be performed.
+     * Subclasses can override to disable auto-declaration.
+     */
+    protected boolean shouldAutoDeclare() {
+        return true;
     }
 
     /**
@@ -134,6 +166,9 @@ public abstract class BaseLogHandler extends AbstractHandler {
         context.setCompilationUnit(cu);
         context.setSelectionOffset(offset);
         context.setSelectionLength(length);
+
+        // Sync working copy buffer with document to ensure AST reflects latest changes
+        cu.getBuffer().setContents(document.get());
 
         // Parse the compilation unit
         ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
@@ -227,5 +262,193 @@ public abstract class BaseLogHandler extends AbstractHandler {
      */
     protected void logWarning(String message) {
         Log4e2026Plugin.logWarning(message);
+    }
+
+    /**
+     * Ensures a logger is declared in the current class if automatic declaration is enabled.
+     * @return true if the logger was declared, false otherwise
+     */
+    protected boolean ensureLoggerDeclared(ICompilationUnit cu, IDocument document) throws Exception {
+        // Get project preferences
+        ProjectPreferences prefs = Log4e2026Plugin.getProjectPreferences(
+                cu.getJavaProject().getProject());
+
+        // Check if automatic declaration is enabled
+        if (!prefs.isAutomaticDeclareEnabled()) {
+            return false;
+        }
+
+        IType primaryType = cu.findPrimaryType();
+        if (primaryType == null) {
+            return false;
+        }
+
+        // Parse the compilation unit
+        ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+        parser.setSource(cu);
+        parser.setResolveBindings(true);
+        CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+
+        // Get preferences
+        String framework = prefs.getLoggingFramework();
+        String loggerName = prefs.getLoggerName();
+
+        // Get the template
+        LoggerTemplate template = LoggerTemplates.getTemplate(framework);
+        if (template == null) {
+            template = LoggerTemplates.getSLF4J();
+        }
+
+        // Find the type declaration
+        if (astRoot.types().isEmpty()) {
+            return false;
+        }
+        TypeDeclaration typeDecl = (TypeDeclaration) astRoot.types().get(0);
+
+        // Check if logger already exists
+        if (isLoggerDeclared(typeDecl, loggerName)) {
+            return false;
+        }
+
+        Log4e2026Plugin.log("Auto-declaring logger '" + loggerName + "'");
+
+        // Create AST rewrite
+        AST ast = astRoot.getAST();
+        ASTRewrite rewrite = ASTRewrite.create(ast);
+
+        // Add imports if enabled
+        if (prefs.isAutomaticImportsEnabled()) {
+            addImportsIfNeeded(astRoot, ast, rewrite, template);
+        }
+
+        // Create the logger field declaration
+        String className = primaryType.getElementName();
+        FieldDeclaration loggerField = createLoggerField(ast, template, loggerName, className);
+
+        // Add the field at the appropriate position
+        ListRewrite bodyRewrite = rewrite.getListRewrite(typeDecl, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+        int insertIndex = findInsertPosition(typeDecl);
+        if (insertIndex == 0) {
+            bodyRewrite.insertFirst(loggerField, null);
+        } else {
+            bodyRewrite.insertAt(loggerField, insertIndex, null);
+        }
+
+        // Apply the changes
+        TextEdit edits = rewrite.rewriteAST(document, cu.getJavaProject().getOptions(true));
+        edits.apply(document);
+        Log4e2026Plugin.log("Logger auto-declared successfully");
+        return true;
+    }
+
+    /**
+     * Check if logger is already declared in the type.
+     */
+    private boolean isLoggerDeclared(TypeDeclaration typeDecl, String loggerName) {
+        for (FieldDeclaration field : typeDecl.getFields()) {
+            for (Object fragment : field.fragments()) {
+                VariableDeclarationFragment vdf = (VariableDeclarationFragment) fragment;
+                if (vdf.getName().getIdentifier().equals(loggerName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Add import declarations if they don't already exist.
+     */
+    @SuppressWarnings("unchecked")
+    private void addImportsIfNeeded(CompilationUnit astRoot, AST ast, ASTRewrite rewrite,
+            LoggerTemplate template) {
+
+        String[] imports = template.getImports();
+        if (imports == null || imports.length == 0) {
+            return;
+        }
+
+        ListRewrite importRewrite = rewrite.getListRewrite(astRoot, CompilationUnit.IMPORTS_PROPERTY);
+
+        for (String importName : imports) {
+            if (!hasImport(astRoot, importName)) {
+                ImportDeclaration importDecl = ast.newImportDeclaration();
+                importDecl.setName(ast.newName(importName.split("\\.")));
+                importRewrite.insertLast(importDecl, null);
+            }
+        }
+    }
+
+    /**
+     * Check if an import already exists in the compilation unit.
+     */
+    private boolean hasImport(CompilationUnit astRoot, String importName) {
+        @SuppressWarnings("unchecked")
+        List<ImportDeclaration> imports = astRoot.imports();
+        for (ImportDeclaration imp : imports) {
+            String existingImport = imp.getName().getFullyQualifiedName();
+            if (existingImport.equals(importName)) {
+                return true;
+            }
+            // Check for wildcard imports
+            if (imp.isOnDemand()) {
+                String packageName = importName.substring(0, importName.lastIndexOf('.'));
+                if (existingImport.equals(packageName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create a logger field declaration.
+     */
+    private FieldDeclaration createLoggerField(AST ast, LoggerTemplate template,
+            String loggerName, String className) {
+
+        // Get declaration template and substitute variables
+        String declaration = template.getDeclaration()
+                .replace("${enclosing_type}", className)
+                .replace("${logger}", loggerName);
+
+        // Parse the field declaration using a temporary class
+        ASTParser fieldParser = ASTParser.newParser(AST.getJLSLatest());
+        fieldParser.setSource(("class Temp { " + declaration + " }").toCharArray());
+        fieldParser.setKind(ASTParser.K_COMPILATION_UNIT);
+        CompilationUnit tempCu = (CompilationUnit) fieldParser.createAST(null);
+        TypeDeclaration tempType = (TypeDeclaration) tempCu.types().get(0);
+        FieldDeclaration tempField = tempType.getFields()[0];
+
+        // Copy the field to the target AST
+        return (FieldDeclaration) ASTNode.copySubtree(ast, tempField);
+    }
+
+    /**
+     * Find the best position to insert the logger field.
+     */
+    private int findInsertPosition(TypeDeclaration typeDecl) {
+        FieldDeclaration[] fields = typeDecl.getFields();
+
+        if (fields.length == 0) {
+            return 0;
+        }
+
+        // Find the last static field and insert after it
+        int lastStaticFieldIndex = -1;
+        @SuppressWarnings("rawtypes")
+        List bodyDeclarations = typeDecl.bodyDeclarations();
+
+        for (int i = 0; i < bodyDeclarations.size(); i++) {
+            Object decl = bodyDeclarations.get(i);
+            if (decl instanceof FieldDeclaration) {
+                FieldDeclaration field = (FieldDeclaration) decl;
+                if ((field.getModifiers() & Modifier.STATIC) != 0) {
+                    lastStaticFieldIndex = i;
+                }
+            }
+        }
+
+        return lastStaticFieldIndex + 1;
     }
 }

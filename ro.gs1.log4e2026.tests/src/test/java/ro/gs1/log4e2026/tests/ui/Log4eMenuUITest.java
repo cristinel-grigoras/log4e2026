@@ -42,7 +42,7 @@ public class Log4eMenuUITest {
     @BeforeClass
     public static void setUpClass() {
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
         bot = new SWTWorkbenchBot();
         // Close welcome page if present
         try {
@@ -65,7 +65,7 @@ public class Log4eMenuUITest {
                 deleteShell.activate();
                 bot.checkBox("Delete project contents on disk (cannot be undone)").click();
                 bot.button("OK").click();
-                bot.waitUntil(Conditions.shellCloses(deleteShell), 10000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
             } catch (Exception e) {
                 System.out.println("Cleanup failed: " + e.getMessage());
             }
@@ -133,7 +133,7 @@ public class Log4eMenuUITest {
         bot.menu("File").menu("New").menu("Other...").click();
         log("2.1 New wizard opened");
 
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         // Type to filter and find Java Project
@@ -141,20 +141,20 @@ public class Log4eMenuUITest {
         log("2.2 filter set");
 
         // Wait for tree to filter
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
         log("2.3 tree filtered");
 
         // Select Java > Java Project
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
         javaNode.getNode("Java Project").select();
         log("2.4 Java Project selected");
 
         // Click Next
         bot.button("Next >").click();
         log("2.5 Next clicked");
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 
         // Enter project name
         bot.textWithLabel("Project name:").setText(PROJECT_NAME);
@@ -166,7 +166,7 @@ public class Log4eMenuUITest {
 
         // Handle "Open Associated Perspective" dialog if it appears
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
             bot.button("No").click();
             log("2.8 perspective dialog dismissed");
         } catch (Exception e) {
@@ -174,7 +174,7 @@ public class Log4eMenuUITest {
         }
 
         // Wait for project to appear in tree
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
         SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
         assertNotNull("Project should be created", project);
         log("2.9 project created");
@@ -202,7 +202,7 @@ public class Log4eMenuUITest {
         bot.menu("File").menu("New").menu("Other...").click();
         log("3.2 New wizard opened");
 
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         // Type to filter and find Class
@@ -210,13 +210,13 @@ public class Log4eMenuUITest {
         log("3.3 filter set");
 
         // Wait for tree to filter
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
         log("3.4 tree filtered");
 
         // Select Java > Class
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
         log("3.5 Class selected");
 
@@ -225,7 +225,7 @@ public class Log4eMenuUITest {
         log("3.6 Next clicked");
 
         // Wait for Name field to be enabled
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
         log("3.7 Name field enabled");
 
         // Set package name (required for Finish to be enabled)
@@ -240,11 +240,11 @@ public class Log4eMenuUITest {
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
         log("3.10 Finish clicked");
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
         log("3.11 wizard closed");
 
         // Wait for editor to open using custom condition
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
         log("3.9 editor opened");
 
         // Verify editor is open and focus it

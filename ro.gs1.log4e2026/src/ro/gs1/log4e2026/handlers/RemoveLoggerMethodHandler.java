@@ -11,6 +11,7 @@ import ro.gs1.log4e2026.operations.OperationContext;
 
 /**
  * Handler for removing logging from the current method.
+ * Uses advanced removal that also handles conditionally wrapped log statements.
  */
 public class RemoveLoggerMethodHandler extends BaseLogHandler {
 
@@ -28,7 +29,8 @@ public class RemoveLoggerMethodHandler extends BaseLogHandler {
         ASTRewrite rewrite = ASTRewrite.create(ast);
 
         Block body = method.getBody();
-        operation.removeLogStatements(rewrite, body);
+        // Use advanced removal that handles conditionally wrapped statements
+        operation.removeLogStatementsAdvanced(rewrite, body);
 
         applyRewrite(context, rewrite);
         logSuccess("Log statements removed from method '" + ASTUtil.getName(method) + "'");

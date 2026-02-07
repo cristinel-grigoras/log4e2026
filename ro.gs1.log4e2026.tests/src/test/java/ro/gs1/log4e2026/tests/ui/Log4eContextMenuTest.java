@@ -96,7 +96,7 @@ public class Log4eContextMenuTest {
 		log("1.1 after menu click");
 
 		// Wait for "New" wizard dialog to appear
-		long waited = TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 5000);
+		long waited = TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
 		log("1.2 after waitUntil New, waited " + waited);
 		bot.activeShell().setFocus();
 
@@ -109,20 +109,20 @@ public class Log4eContextMenuTest {
 		log("1.3 after setText filter");
 
 		// Wait for tree to filter and show Java node
-		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 		log("1.4 after tree filter");
 
 		// Select first match in tree
 		SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
 		javaNode.expand();
-		TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+		TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
 		javaNode.getNode("Java Project").select();
 		log("1.5 after select Java Project");
 
 		// Click Next - wait for next page to load
 		bot.button("Next >").click();
 		log("1.6 after Next click");
-		TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 		log("1.7 after waitUntil Project name enabled");
 
 		// Enter project name
@@ -139,7 +139,7 @@ public class Log4eContextMenuTest {
 
 		// Handle possible "Open Associated Perspective?" dialog
 		try {
-			TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+			TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
 			log("1.10 perspective dialog found");
 			bot.button("No").click();
 		} catch (Exception e) {
@@ -148,7 +148,7 @@ public class Log4eContextMenuTest {
 
 		// Wait for wizard to close and project to appear in tree
 		log("1.11 before wait for tree");
-		TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+		TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
 		log("1.12 project found in tree");
 
 		// Verify project created
@@ -173,18 +173,18 @@ public class Log4eContextMenuTest {
 		// Use File > New > Other and select Class from wizard
 		bot.menu("File").menu("New").menu("Other...").click();
 		log("2.2 after menu click");
-		TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
 		log("2.3 after New dialog");
 
 		// Filter and select Class
 		bot.text().setText("Class");
 		log("2.4 after filter text");
-		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 		log("2.5 after tree filter");
 
 		SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
 		javaNode.expand();
-		TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+		TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
 		javaNode.getNode("Class").select();
 		log("2.6 after Class selected");
 
@@ -192,7 +192,7 @@ public class Log4eContextMenuTest {
 		log("2.7 after Next click");
 
 		// Wait for New Java Class wizard page
-		TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 		log("2.8 after Name field enabled");
 
 		// Set package name (required for Finish to be enabled)
@@ -212,7 +212,7 @@ public class Log4eContextMenuTest {
 		log("2.10 before Finish");
 		bot.button("Finish").click();
 		log("2.11 after Finish click");
-		TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 10000);
+		TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 		log("2.12 after shell closed");
 
 		// File should be open in editor
@@ -236,7 +236,7 @@ public class Log4eContextMenuTest {
 			try {
 				bot.tree().getTreeItem(PROJECT_NAME).expand().getNode("src").expand().getNode("com.test").expand()
 						.getNode(CLASS_NAME + ".java").doubleClick();
-				TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 5000);
+				TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
 				editor = bot.editorByTitle(CLASS_NAME + ".java");
 				log("3.1 editor opened from tree");
 			} catch (Exception e2) {
@@ -379,6 +379,7 @@ public class Log4eContextMenuTest {
 		log("5.2 navigated to class level");
 
 		// Execute Declare Logger from context menu
+		String contentBefore = styledText.getText();
 		System.out.println("\n=== Executing 'Declare Logger' ===");
 		var contextMenu = styledText.contextMenu();
 		for (String item : contextMenu.menuItems()) {
@@ -390,8 +391,12 @@ public class Log4eContextMenuTest {
 			}
 		}
 
-		// Wait a moment for any dialog to appear
-		bot.sleep(500);
+		// Wait for editor content to change after handler action
+		try {
+			TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
+		} catch (Exception e) {
+			// Content may not change if a dialog appeared instead
+		}
 
 		// Check what shell/dialog is active
 		try {
@@ -487,8 +492,12 @@ public class Log4eContextMenuTest {
 			}
 		}
 
-		// Wait for action to complete
-		bot.sleep(500);
+		// Wait for editor content to change after handler action
+		try {
+			TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
+		} catch (Exception e) {
+			// Content may not change if a dialog appeared instead
+		}
 
 		// Check what shell/dialog is active
 		try {
@@ -583,7 +592,7 @@ public class Log4eContextMenuTest {
 		}
 
 		// Wait for Properties dialog
-		TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Properties for " + PROJECT_NAME), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Properties for " + PROJECT_NAME), 1000);
 		log("7.3 Properties dialog opened");
 
 		SWTBotShell propsShell = bot.shell("Properties for " + PROJECT_NAME);
@@ -609,7 +618,6 @@ public class Log4eContextMenuTest {
 				foundLog4e = true;
 				System.out.println("\nFound Log4E settings: " + treeItem.getText());
 				treeItem.select();
-				bot.sleep(500);
 
 				// Capture screenshot of Log4E settings
 				String filename = SCREENSHOT_DIR + "/11_log4e_project_settings.png";
@@ -669,15 +677,15 @@ public class Log4eContextMenuTest {
 		}
 
 		// Wait for Preferences dialog
-		TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 5000);
+		TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
 		log("8.2 Preferences dialog opened");
 
 		SWTBotShell prefsShell = bot.shell("Preferences");
 		prefsShell.activate();
 
-		// Filter for Log4E
+		// Filter for Log4E and wait for tree to update
 		bot.text().setText("Log4E");
-		bot.sleep(500);
+		TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 		log("8.3 filtered for Log4E");
 
 		// Capture screenshot of filtered preferences
@@ -706,7 +714,6 @@ public class Log4eContextMenuTest {
 			if (treeItem.getText().contains("Log4E")) {
 				foundLog4e = true;
 				treeItem.select();
-				bot.sleep(300);
 				System.out.println("\nSelected: " + treeItem.getText());
 
 				// Capture main Log4E preferences page
@@ -720,7 +727,6 @@ public class Log4eContextMenuTest {
 					for (String subPage : treeItem.getNodes()) {
 						System.out.println("\nLog4E sub-page: " + subPage);
 						treeItem.getNode(subPage).select();
-						bot.sleep(300);
 
 						// Capture each sub-page
 						String safeName = subPage.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
@@ -767,14 +773,14 @@ public class Log4eContextMenuTest {
 			// Delete using Edit > Delete menu
 			bot.menu("Edit").menu("Delete").click();
 			log("9.3 delete menu clicked");
-			TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 3000);
+			TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 1000);
 			log("9.4 delete dialog appeared");
 
 			// Confirm deletion
 			try {
 				bot.checkBox("Delete project contents on disk (cannot be undone)").click();
 				bot.button("OK").click();
-				TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 0), 5000);
+				TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 0), 1000);
 				log("9.5 project deleted");
 			} catch (Exception e) {
 				// Dialog might be different

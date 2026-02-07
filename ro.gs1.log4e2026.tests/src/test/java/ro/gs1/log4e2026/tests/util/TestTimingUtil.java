@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.waits.ICondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotStyledText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 
@@ -182,17 +183,12 @@ public class TestTimingUtil {
 
     /**
      * Condition: wait for shell count to increase (e.g., menu opened).
+     * Returns quickly - SWTBot handles polling.
      */
     public static ICondition shellCountIncreases(SWTWorkbenchBot bot, int initialCount) {
         return new ICondition() {
             @Override
             public boolean test() throws Exception {
-                for (int i = 0; i < 10; i++) {
-                    if (bot.shells().length > initialCount) {
-                        return true;
-                    }
-                    Thread.sleep(CONDITION_POLL_INTERVAL);
-                }
                 return bot.shells().length > initialCount;
             }
             @Override
@@ -206,18 +202,12 @@ public class TestTimingUtil {
 
     /**
      * Condition: wait for active shell to change.
+     * Returns quickly - SWTBot handles polling.
      */
     public static ICondition activeShellChanges(SWTWorkbenchBot bot, String initialShellText) {
         return new ICondition() {
             @Override
             public boolean test() throws Exception {
-                for (int i = 0; i < 10; i++) {
-                    String current = bot.activeShell().getText();
-                    if (!current.equals(initialShellText)) {
-                        return true;
-                    }
-                    Thread.sleep(CONDITION_POLL_INTERVAL);
-                }
                 return !bot.activeShell().getText().equals(initialShellText);
             }
             @Override
@@ -231,19 +221,12 @@ public class TestTimingUtil {
 
     /**
      * Condition: wait for editor to be active.
+     * Returns quickly - SWTBot handles polling.
      */
     public static ICondition editorIsActive(SWTWorkbenchBot bot, String editorTitle) {
         return new ICondition() {
             @Override
             public boolean test() throws Exception {
-                for (int i = 0; i < 10; i++) {
-                    try {
-                        bot.editorByTitle(editorTitle);
-                        return true;
-                    } catch (Exception e) {
-                        Thread.sleep(CONDITION_POLL_INTERVAL);
-                    }
-                }
                 try {
                     bot.editorByTitle(editorTitle);
                     return true;
@@ -256,6 +239,25 @@ public class TestTimingUtil {
             @Override
             public String getFailureMessage() {
                 return "Editor '" + editorTitle + "' not found";
+            }
+        };
+    }
+
+    /**
+     * Condition: wait for editor styled text content to change from original.
+     * Use after handler actions that modify the editor.
+     */
+    public static ICondition editorContentChanges(SWTBotStyledText styledText, String originalContent) {
+        return new ICondition() {
+            @Override
+            public boolean test() throws Exception {
+                return !styledText.getText().equals(originalContent);
+            }
+            @Override
+            public void init(SWTBot bot) {}
+            @Override
+            public String getFailureMessage() {
+                return "Editor content did not change";
             }
         };
     }

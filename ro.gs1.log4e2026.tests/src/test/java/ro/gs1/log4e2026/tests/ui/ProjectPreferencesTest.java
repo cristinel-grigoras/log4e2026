@@ -41,7 +41,7 @@ public class ProjectPreferencesTest {
     @BeforeClass
     public static void setUpClass() {
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
         SWTBotPreferences.PLAYBACK_DELAY = 0;
         SWTBotPreferences.TYPE_INTERVAL = 0;
         bot = new SWTWorkbenchBot();
@@ -64,7 +64,7 @@ public class ProjectPreferencesTest {
                 deleteShell.activate();
                 bot.checkBox("Delete project contents on disk (cannot be undone)").click();
                 bot.button("OK").click();
-                bot.waitUntil(Conditions.shellCloses(deleteShell), 10000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
             } catch (Exception e) {
                 System.out.println("Cleanup failed: " + e.getMessage());
             }
@@ -108,6 +108,16 @@ public class ProjectPreferencesTest {
         return null;
     }
 
+    /**
+     * Open project Properties dialog by clicking the project in the tree
+     * (which focuses Package Explorer) and using File > Properties menu.
+     */
+    private void openProjectProperties() {
+        bot.tree().getTreeItem(PROJECT_NAME).click();
+        bot.menu("File").menu("Properties").click();
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Properties for " + PROJECT_NAME), 1000);
+    }
+
     private SWTBotTreeItem findLog4eNode(SWTBotShell propsShell) {
         try {
             for (SWTBotTreeItem item : propsShell.bot().tree().getAllItems()) {
@@ -126,31 +136,31 @@ public class ProjectPreferencesTest {
         log("1.0 start - create Java project");
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Java Project");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
         javaNode.getNode("Java Project").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 
         bot.textWithLabel("Project name:").setText(PROJECT_NAME);
         bot.button("Finish").click();
 
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
             bot.button("No").click();
         } catch (Exception e) {
             // Dialog may not appear
         }
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
         assertNotNull(bot.tree().getTreeItem(PROJECT_NAME));
         projectCreated = true;
         log("1.1 project created");
@@ -168,28 +178,28 @@ public class ProjectPreferencesTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText(CLASS_NAME);
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
         log("2.1 class created");
     }
 
@@ -197,66 +207,18 @@ public class ProjectPreferencesTest {
     public void test03_EnableProjectPreferencesAndSetLoggerName() {
         log("3.0 start - enable project preferences");
 
-        SWTBotTreeItem projectItem;
-        try {
-            projectItem = bot.tree().getTreeItem(PROJECT_NAME);
-            projectItem.select();
-        } catch (Exception e) {
-            System.out.println("Project not found, skipping");
-            return;
-        }
+        openProjectProperties();
+        log("3.1 opened project properties");
 
-        // Open project properties via Project menu (more reliable)
-        try {
-            bot.menu("Project").menu("Properties").click();
-            log("3.1 clicked Project -> Properties menu");
-        } catch (Exception e) {
-            // Fallback: try context menu
-            try {
-                projectItem.contextMenu("Properties").click();
-                log("3.1 used context menu fallback");
-            } catch (Exception e2) {
-                System.out.println("Could not open Properties: " + e2.getMessage());
-                return;
-            }
-        }
-
-        // Wait for Properties dialog
-        bot.sleep(1000);
-
-        // Find the Properties shell
-        SWTBotShell propsShell = null;
-        for (SWTBotShell shell : bot.shells()) {
-            String text = shell.getText();
-            if (text != null && text.contains("Properties") && text.contains(PROJECT_NAME)) {
-                propsShell = shell;
-                break;
-            }
-        }
+        SWTBotShell propsShell = findPropertiesShell();
         if (propsShell == null) {
-            for (SWTBotShell shell : bot.shells()) {
-                String text = shell.getText();
-                if (text != null && text.contains("Properties")) {
-                    propsShell = shell;
-                    break;
-                }
-            }
-        }
-
-        if (propsShell == null) {
-            System.out.println("Properties dialog not found. Available shells:");
-            for (SWTBotShell s : bot.shells()) {
-                System.out.println("  - '" + s.getText() + "'");
-            }
+            System.out.println("Properties dialog not found");
             return;
         }
         propsShell.activate();
-        log("3.2 opened project properties: " + propsShell.getText());
 
         // Navigate to Log4E settings - use the dialog's bot
         try {
-            bot.sleep(500);
-
             // Find Log4E 2026 in the dialog's tree
             SWTBotTreeItem log4eNode = null;
             for (SWTBotTreeItem item : propsShell.bot().tree().getAllItems()) {
@@ -274,7 +236,7 @@ public class ProjectPreferencesTest {
             }
 
             log4eNode.select();
-            bot.sleep(500);
+            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(propsShell.bot().checkBox("Enable project-specific settings")), 1000);
             log("3.3 selected Log4E 2026");
 
             // Enable project-specific settings - use dialog's bot
@@ -287,11 +249,10 @@ public class ProjectPreferencesTest {
 
             // Apply and close
             propsShell.bot().button("Apply and Close").click();
-            bot.waitUntil(Conditions.shellCloses(propsShell), 5000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellCloses(propsShell), 1000);
             log("3.6 preferences saved");
 
             // Verify prefs file was created in project .settings folder
-            bot.sleep(500); // Allow file system to sync
             IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
             IFile prefsFile = project.getFile(".settings/ro.gs1.log4e2026.prefs");
             project.refreshLocal(IProject.DEPTH_INFINITE, null);
@@ -357,8 +318,6 @@ public class ProjectPreferencesTest {
             return;
         }
 
-        bot.sleep(500);
-
         // Handle wizard if it appears
         try {
             SWTBotShell wizardShell = bot.shell("Log4E - Declare Logger");
@@ -370,7 +329,7 @@ public class ProjectPreferencesTest {
             // Wizard may not appear
         }
 
-        bot.sleep(500);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, content), 1000);
 
         // Verify the project-specific logger name was used
         styledText.setFocus();
@@ -400,24 +359,8 @@ public class ProjectPreferencesTest {
     public void test05_ChangeProjectFrameworkToLog4j2() {
         log("5.0 start - change project framework to Log4j2");
 
-        SWTBotTreeItem projectItem;
-        try {
-            projectItem = bot.tree().getTreeItem(PROJECT_NAME);
-            projectItem.select();
-        } catch (Exception e) {
-            System.out.println("Project not found, skipping");
-            return;
-        }
-
-        // Open project properties via Project menu
-        try {
-            bot.menu("Project").menu("Properties").click();
-        } catch (Exception e) {
-            projectItem.contextMenu("Properties").click();
-        }
-
-        // Wait for Properties dialog
-        bot.sleep(1000);
+        openProjectProperties();
+        log("5.1 opened project properties");
 
         SWTBotShell propsShell = findPropertiesShell();
         if (propsShell == null) {
@@ -425,7 +368,6 @@ public class ProjectPreferencesTest {
             return;
         }
         propsShell.activate();
-        log("5.1 opened project properties");
 
         try {
             // Find Log4E 2026 in the dialog's tree
@@ -437,14 +379,28 @@ public class ProjectPreferencesTest {
             }
 
             log4eNode.select();
-            bot.sleep(500);
+            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(propsShell.bot().comboBoxWithLabel("Logging Framework:")), 1000);
 
-            // Change framework to Log4j 2 - use dialog's bot
-            propsShell.bot().comboBoxWithLabel("Logging Framework:").setSelection("Log4j 2");
-            log("5.2 selected Log4j 2 framework");
+            // Change framework to Log4j 2 - items include "(built-in)" suffix
+            var combo = propsShell.bot().comboBoxWithLabel("Logging Framework:");
+            String[] items = combo.items();
+            String log4j2Item = null;
+            for (String item : items) {
+                if (item.startsWith("Log4j 2")) {
+                    log4j2Item = item;
+                    break;
+                }
+            }
+            if (log4j2Item != null) {
+                combo.setSelection(log4j2Item);
+                log("5.2 selected framework: " + log4j2Item);
+            } else {
+                System.out.println("Log4j 2 not found in combo items: " + java.util.Arrays.toString(items));
+                fail("Log4j 2 option not found in Logging Framework combo");
+            }
 
             propsShell.bot().button("Apply and Close").click();
-            bot.waitUntil(Conditions.shellCloses(propsShell), 5000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellCloses(propsShell), 1000);
             log("5.3 preferences saved");
 
         } catch (Exception e) {
@@ -470,28 +426,28 @@ public class ProjectPreferencesTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText("Log4j2TestClass");
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, "Log4j2TestClass.java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, "Log4j2TestClass.java"), 1000);
         log("6.1 second class created");
     }
 
@@ -534,8 +490,6 @@ public class ProjectPreferencesTest {
             return;
         }
 
-        bot.sleep(500);
-
         // Handle wizard if it appears
         try {
             SWTBotShell wizardShell = bot.shell("Log4E - Declare Logger");
@@ -547,7 +501,7 @@ public class ProjectPreferencesTest {
             // Wizard may not appear
         }
 
-        bot.sleep(500);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, content), 1000);
 
         // Verify Log4j 2 was used (LogManager import)
         styledText.setFocus();
@@ -580,24 +534,8 @@ public class ProjectPreferencesTest {
     public void test08_DisableProjectPreferences() {
         log("8.0 start - disable project preferences");
 
-        SWTBotTreeItem projectItem;
-        try {
-            projectItem = bot.tree().getTreeItem(PROJECT_NAME);
-            projectItem.select();
-        } catch (Exception e) {
-            System.out.println("Project not found, skipping");
-            return;
-        }
-
-        // Open project properties via Project menu
-        try {
-            bot.menu("Project").menu("Properties").click();
-        } catch (Exception e) {
-            projectItem.contextMenu("Properties").click();
-        }
-
-        // Wait for Properties dialog
-        bot.sleep(1000);
+        openProjectProperties();
+        log("8.1 opened project properties");
 
         SWTBotShell propsShell = findPropertiesShell();
         if (propsShell == null) {
@@ -605,7 +543,6 @@ public class ProjectPreferencesTest {
             return;
         }
         propsShell.activate();
-        log("8.1 opened project properties");
 
         try {
             // Find Log4E 2026 in the dialog's tree
@@ -617,14 +554,14 @@ public class ProjectPreferencesTest {
             }
 
             log4eNode.select();
-            bot.sleep(500);
+            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(propsShell.bot().checkBox("Enable project-specific settings")), 1000);
 
             // Disable project-specific settings - use dialog's bot
             propsShell.bot().checkBox("Enable project-specific settings").deselect();
             log("8.2 disabled project-specific settings");
 
             propsShell.bot().button("Apply and Close").click();
-            bot.waitUntil(Conditions.shellCloses(propsShell), 5000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellCloses(propsShell), 1000);
             log("8.3 preferences saved");
 
         } catch (Exception e) {
@@ -646,7 +583,7 @@ public class ProjectPreferencesTest {
             SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
             project.select();
             project.contextMenu("Delete").click();
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 1000);
             bot.checkBox("Delete project contents on disk (cannot be undone)").click();
             bot.button("OK").click();
             projectCreated = false;

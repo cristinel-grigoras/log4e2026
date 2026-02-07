@@ -41,7 +41,7 @@ public class PreferenceSaveTest {
     @BeforeClass
     public static void setUpClass() {
         SWTBotPreferences.PLAYBACK_DELAY = 0;    // No delay between actions
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
         SWTBotPreferences.TYPE_INTERVAL = 0;    // No delay between keystrokes
         // Disable automatic failure screenshots
         SWTBotPreferences.SCREENSHOTS_DIR = "";
@@ -83,19 +83,13 @@ public class PreferenceSaveTest {
         log("openPreferences start");
         // Ensure we have an active shell
         TestTimingUtil.focusWorkbenchShell(bot);
-        int shellCount = bot.shells().length;
         log("after setFocus");
 
-        // Open Window menu - wait for menu shell to appear
-        bot.activeShell().pressShortcut(SWT.ALT, 'w');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
-        log("after Alt+W");
+        // Open Window > Preferences... using menu
+        bot.menu("Window").menu("Preferences...").click();
+        log("after Window > Preferences... menu click");
 
-        // Navigate to Preferences (last item) and open
-        bot.activeShell().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance(SWT.END));
-        bot.activeShell().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance(SWT.CR));
-        log("after END+CR");
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"));
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
         log("Preferences open");
     }
 
@@ -333,6 +327,11 @@ public class PreferenceSaveTest {
         loggerNameField.setText(testLoggerName);
         log("after change logger name");
 
+        // Apply main page changes before navigating to sub-page
+        // (FieldEditorPreferencePage may lose uncommitted values on page switch)
+        bot.button("Apply").click();
+        log("after Apply main page");
+
         selectPreferencePage("Log4E 2026", "Declaration");
         log("after select Declaration");
         SWTBotCheckBox finalCheckbox = bot.checkBox("Declare logger as final");
@@ -362,6 +361,7 @@ public class PreferenceSaveTest {
 
         selectPreferencePage("Log4E 2026");
         bot.textWithLabel("Logger Variable Name:").setText(originalLoggerName);
+        bot.button("Apply").click();
         selectPreferencePage("Log4E 2026", "Declaration");
         if (originalStaticState) {
             bot.checkBox("Declare logger as final").select();

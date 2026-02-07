@@ -57,7 +57,7 @@ public class MenuVisibilityByCursorPositionTest {
     @BeforeClass
     public static void setUpClass() {
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
         bot = new SWTWorkbenchBot();
         try {
             bot.viewByTitle("Welcome").close();
@@ -79,7 +79,7 @@ public class MenuVisibilityByCursorPositionTest {
                 deleteShell.activate();
                 bot.checkBox("Delete project contents on disk (cannot be undone)").click();
                 bot.button("OK").click();
-                bot.waitUntil(Conditions.shellCloses(deleteShell), 10000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
             } catch (Exception e) {
                 System.out.println("Cleanup failed: " + e.getMessage());
             }
@@ -113,31 +113,31 @@ public class MenuVisibilityByCursorPositionTest {
         log("1.0 start - create Java project");
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Java Project");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
         javaNode.getNode("Java Project").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 
         bot.textWithLabel("Project name:").setText(PROJECT_NAME);
         bot.button("Finish").click();
 
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
             bot.button("No").click();
         } catch (Exception e) {
             // Dialog may not appear
         }
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
         assertNotNull(bot.tree().getTreeItem(PROJECT_NAME));
         log("1.1 project created");
 
@@ -159,28 +159,28 @@ public class MenuVisibilityByCursorPositionTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText(CLASS_NAME);
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
         log("2.1 class created, editor opened");
 
         // Get editor and styled text
@@ -273,7 +273,6 @@ public class MenuVisibilityByCursorPositionTest {
         styledText.setFocus();
         // Navigate to line (Ctrl+L in Eclipse, but we'll use direct positioning)
         styledText.navigateTo(lineNumber, 4); // Line, column 4 (indented)
-        bot.sleep(300); // Allow Eclipse to update context
     }
 
     /**

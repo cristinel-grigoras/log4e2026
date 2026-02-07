@@ -41,7 +41,7 @@ public class Log4ePreferencePageUITest {
         }
         // Disable SWTBot automatic screenshots on failure
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
     }
 
     @AfterClass
@@ -138,7 +138,7 @@ public class Log4ePreferencePageUITest {
             log("1.1 after Preferences click");
 
             // Wait for Preferences dialog
-            bot.waitUntil(org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive("Preferences"), 5000);
+            TestTimingUtil.waitUntil(bot, org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive("Preferences"), 1000);
             log("1.2 Preferences dialog active");
             assertTrue("Preferences dialog should open", bot.shell("Preferences").isActive());
             captureScreen("pref_01_preferences_dialog.png");
@@ -158,7 +158,7 @@ public class Log4ePreferencePageUITest {
             log("2.1 after Preferences click");
 
             // Wait for Preferences dialog
-            bot.waitUntil(org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive("Preferences"), 5000);
+            TestTimingUtil.waitUntil(bot, org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive("Preferences"), 1000);
             log("2.2 Preferences dialog active");
 
             bot.tree().getTreeItem("Log4E 2026").select();
@@ -197,7 +197,6 @@ public class Log4ePreferencePageUITest {
 
             // Capture current state
             bot.menu("Edit").click();
-            bot.sleep(300);
             captureScreen("pref_03_edit_menu_no_project.png");
             log("3.2 Captured Edit menu (no Java project open)");
             bot.activeShell().pressShortcut(org.eclipse.swtbot.swt.finder.keyboard.Keystrokes.ESC);

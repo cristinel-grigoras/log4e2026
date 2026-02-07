@@ -50,7 +50,14 @@ public class LoggerTemplates {
     }
 
     public static LoggerTemplate getTemplate(String id) {
-        return TEMPLATES.get(id);
+        if (id == null) {
+            return null;
+        }
+        LoggerTemplate template = TEMPLATES.get(id);
+        if (template == null) {
+            template = TEMPLATES.get(id.toUpperCase());
+        }
+        return template;
     }
 
     public static LoggerTemplate getSLF4J() {

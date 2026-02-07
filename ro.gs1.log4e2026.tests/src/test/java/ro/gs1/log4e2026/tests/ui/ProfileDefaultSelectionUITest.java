@@ -46,7 +46,7 @@ public class ProfileDefaultSelectionUITest {
             dir.mkdirs();
         }
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 5000;
+        SWTBotPreferences.TIMEOUT = 1000;
     }
 
     @AfterClass
@@ -110,7 +110,7 @@ public class ProfileDefaultSelectionUITest {
      */
     private void openTemplatesPreferencePage() {
         bot.menu("Window").menu("Preferences...").click();
-        bot.waitUntil(Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
 
         // Use shell-specific bot to avoid finding wrong tree
         SWTBotShell prefsShell = bot.shell("Preferences");
@@ -136,12 +136,11 @@ public class ProfileDefaultSelectionUITest {
                     break;
                 }
             }
-            bot.sleep(300);
             log("01.2 SLF4J selected");
 
             // Click Duplicate
             bot.button("Duplicate...").click();
-            bot.waitUntil(Conditions.shellIsActive("Duplicate Profile"), 5000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Duplicate Profile"), 1000);
             log("01.3 Duplicate dialog opened");
 
             // Enter unique name with timestamp
@@ -152,18 +151,16 @@ public class ProfileDefaultSelectionUITest {
             log("01.4 Created profile: " + testProfileName);
 
             // Wait for preferences to return and activate shell explicitly
-            bot.waitUntil(Conditions.shellIsActive("Preferences"), 5000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
             SWTBotShell prefsShell = bot.shell("Preferences");
             prefsShell.activate();
             prefsShell.setFocus();
-            bot.sleep(500);
             log("01.4b Back to Preferences");
 
             // Re-select Templates page to ensure widgets are accessible
             // Use the tree in the preferences shell context
             SWTBotTreeItem log4eItem = prefsShell.bot().tree().getTreeItem("Log4E 2026");
             log4eItem.getNode("Templates").select();
-            bot.sleep(300);
             log("01.4c Templates page re-selected");
 
             // Select the new profile (use shell-specific bot)
@@ -178,12 +175,10 @@ public class ProfileDefaultSelectionUITest {
             }
             assertTrue("New profile should exist in combo", newProfileIndex >= 0);
             profileCombo.setSelection(newProfileIndex);
-            bot.sleep(300);
             log("01.5 New profile selected");
 
             // Click Apply to save as global default
             bot.button("Apply").click();
-            bot.sleep(500);
             log("01.6 Applied settings");
 
             captureScreen("profile_default_01_global_default.png");
@@ -200,7 +195,7 @@ public class ProfileDefaultSelectionUITest {
             log("01.8 Preferences closed with Apply and Close");
 
             // Re-open preferences to verify persistence
-            bot.sleep(500);
+            TestTimingUtil.waitUntil(bot, Conditions.shellCloses(prefsShell), 1000);
             openTemplatesPreferencePage();
             log("01.9 Re-opened Templates page");
 
@@ -229,15 +224,20 @@ public class ProfileDefaultSelectionUITest {
         log("02.0 start");
         try {
             // Create a new Java project for testing project-level settings
-            bot.menu("File").menu("New").menu("Project...").click();
-            bot.waitUntil(Conditions.shellIsActive("New Project"), 5000);
-            log("02.1 New Project wizard opened");
+            bot.menu("File").menu("New").menu("Other...").click();
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
+            bot.activeShell().setFocus();
+            log("02.1 New wizard opened");
 
-            // Select Java Project
+            // Filter and select Java Project
+            bot.text().setText("Java Project");
+            TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
             SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
             javaNode.expand();
+            TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
             javaNode.getNode("Java Project").select();
             bot.button("Next >").click();
+            TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
             log("02.2 Java Project selected");
 
             // Enter project name
@@ -251,23 +251,16 @@ public class ProfileDefaultSelectionUITest {
             bot.button("Finish").click();
             log("02.4 Finish clicked");
 
-            // Wait for project to be created (might show perspective switch dialog)
-            bot.sleep(2000);
+            // Handle perspective switch dialog if it appears
             try {
-                // If "Open Associated Perspective?" dialog appears, click No
-                for (SWTBotShell shell : bot.shells()) {
-                    if (shell.getText().contains("Perspective")) {
-                        shell.activate();
-                        bot.button("No").click();
-                        log("02.5 Declined perspective switch");
-                        break;
-                    }
-                }
+                TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
+                bot.button("No").click();
+                log("02.5 Declined perspective switch");
             } catch (Exception e) {
                 // Dialog didn't appear, that's OK
             }
 
-            bot.sleep(1000);
+            TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, testProjectName), 5000);
             log("02.6 Project created successfully: " + testProjectName);
 
             captureScreen("profile_default_02_project_created.png");
@@ -291,61 +284,13 @@ public class ProfileDefaultSelectionUITest {
             }
             log("03.1 Testing with project: " + testProjectName);
 
-            // Open Project Explorer and find the project
-            try {
-                bot.viewByTitle("Package Explorer").setFocus();
-                log("03.1b Package Explorer focused");
-            } catch (Exception e) {
-                try {
-                    bot.viewByTitle("Project Explorer").setFocus();
-                    log("03.1b Project Explorer focused");
-                } catch (Exception e2) {
-                    log("03.1b Could not focus explorer view: " + e2.getMessage());
-                }
-            }
-            bot.sleep(500);
-
-            // Right-click on project and open Properties
-            SWTBotTreeItem projectItem = null;
-            try {
-                projectItem = bot.tree().getTreeItem(testProjectName);
-                projectItem.select();
-                log("03.2a Project selected");
-            } catch (Exception e) {
-                log("03.2a Could not select project: " + e.getMessage());
-                fail("Could not find project: " + testProjectName);
-                return;
-            }
-
-            // Use Alt+Enter shortcut to open Properties (more reliable than context menu)
-            try {
-                bot.sleep(300);
-                // First try keyboard shortcut Alt+Enter
-                projectItem.select();
-                TestTimingUtil.focusWorkbenchShell(bot);
-                org.eclipse.swtbot.swt.finder.keyboard.Keystrokes.MOD1.toString(); // Force load
-                bot.activeShell().pressShortcut(org.eclipse.swt.SWT.ALT, '\r');
-                log("03.2 Opened project properties via Alt+Enter");
-            } catch (Exception e) {
-                log("03.2 Alt+Enter failed: " + e.getMessage() + ", trying menu");
-                // Alternative: use Project menu -> Properties
-                try {
-                    projectItem.select();
-                    bot.menu("Project").menu("Properties").click();
-                    log("03.2b Opened project properties via Project menu");
-                } catch (Exception e2) {
-                    log("03.2b Project menu also failed: " + e2.getMessage());
-                }
-            }
+            // Select project and open Properties via File menu
+            bot.tree().getTreeItem(testProjectName).click();
+            bot.menu("File").menu("Properties").click();
+            log("03.2 Opened project properties via File > Properties");
 
             // Wait for the dialog to appear
-            bot.sleep(2000);
-
-            // Debug: list all available shells
-            System.out.println("Available shells after Properties click:");
-            for (SWTBotShell s : bot.shells()) {
-                System.out.println("  - '" + s.getText() + "'");
-            }
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Properties for " + testProjectName), 3000);
 
             // Try to find Properties shell with different name patterns
             SWTBotShell propertiesShell = null;
@@ -369,7 +314,7 @@ public class ProfileDefaultSelectionUITest {
                 propertiesShell.activate();
                 log("03.3 Properties dialog opened: " + propertiesShell.getText());
             } else {
-                bot.waitUntil(Conditions.shellIsActive("Properties for " + testProjectName), 5000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Properties for " + testProjectName), 1000);
                 propertiesShell = bot.shell("Properties for " + testProjectName);
                 log("03.3 Properties dialog opened via waitUntil");
             }
@@ -387,7 +332,6 @@ public class ProfileDefaultSelectionUITest {
                 return;
             }
 
-            bot.sleep(500);
             captureScreen("profile_default_03_project_properties.png");
 
             // Enable project-specific settings
@@ -436,18 +380,15 @@ public class ProfileDefaultSelectionUITest {
             }
             log("03.7 Applied project settings");
 
-            bot.sleep(500);
+            TestTimingUtil.waitUntil(bot, Conditions.shellCloses(propertiesShell), 3000);
 
             // Re-open properties to verify persistence
-            SWTBotTreeItem projectItem2 = bot.tree().getTreeItem(testProjectName);
-            projectItem2.select();
-            bot.sleep(300);
-            // Use Alt+Enter to open Properties (same as first opening)
-            bot.activeShell().pressShortcut(org.eclipse.swt.SWT.ALT, '\r');
-            log("03.7b Re-opening properties via Alt+Enter");
+            bot.tree().getTreeItem(testProjectName).click();
+            bot.menu("File").menu("Properties").click();
+            log("03.7b Re-opening properties via File > Properties");
 
             // Wait for dialog to appear
-            bot.sleep(2000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Properties for " + testProjectName), 3000);
 
             // Find the re-opened properties shell
             SWTBotShell propertiesShell2 = null;
@@ -466,7 +407,6 @@ public class ProfileDefaultSelectionUITest {
 
             // Navigate to Log4E 2026 page
             propertiesShell2.bot().tree().getTreeItem("Log4E 2026").select();
-            bot.sleep(500);
 
             // Verify settings persisted
             try {

@@ -61,7 +61,7 @@ public class ExchangeFrameworkTest {
                 deleteShell.activate();
                 bot.checkBox("Delete project contents on disk (cannot be undone)").click();
                 bot.button("OK").click();
-                bot.waitUntil(Conditions.shellCloses(deleteShell), 10000);
+                TestTimingUtil.waitUntil(bot, Conditions.shellCloses(deleteShell), 1000);
             } catch (Exception e) {
                 System.out.println("Cleanup failed: " + e.getMessage());
             }
@@ -92,31 +92,31 @@ public class ExchangeFrameworkTest {
         log("1.0 start - create Java project");
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Java Project");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Java Project"), 1000);
         javaNode.getNode("Java Project").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Project name:")), 1000);
 
         bot.textWithLabel("Project name:").setText(PROJECT_NAME);
         bot.button("Finish").click();
 
         try {
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Open Associated Perspective?"), 1000);
             bot.button("No").click();
         } catch (Exception e) {
             // Dialog may not appear
         }
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.projectExists(bot, PROJECT_NAME), 1000);
         assertNotNull(bot.tree().getTreeItem(PROJECT_NAME));
         projectCreated = true;
         log("1.1 project created");
@@ -134,28 +134,28 @@ public class ExchangeFrameworkTest {
         }
 
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("New"), 1000);
         bot.activeShell().setFocus();
 
         bot.text().setText("Class");
-        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeHasRows(bot.tree(), 1), 1000);
 
         SWTBotTreeItem javaNode = bot.tree().getTreeItem("Java");
         javaNode.expand();
-        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 3000);
+        TestTimingUtil.waitUntil(bot, Conditions.treeItemHasNode(javaNode, "Class"), 1000);
         javaNode.getNode("Class").select();
 
         bot.button("Next >").click();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.textWithLabel("Name:")), 1000);
 
         bot.textWithLabel("Package:").setText("com.test");
         bot.textWithLabel("Name:").setText(CLASS_NAME);
 
         SWTBotShell wizardShell = bot.shell("New Java Class");
         bot.button("Finish").click();
-        bot.waitUntil(Conditions.shellCloses(wizardShell), 10000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellCloses(wizardShell), 1000);
 
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 10000);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorIsActive(bot, CLASS_NAME + ".java"), 1000);
 
         // Set class content with SLF4J logging
         SWTBotEditor editor = bot.editorByTitle(CLASS_NAME + ".java");
@@ -201,7 +201,7 @@ public class ExchangeFrameworkTest {
 
         // Open preferences
         bot.menu("Window").menu("Preferences...").click();
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
         log("3.1 opened Preferences");
 
         // Navigate to Log4E preferences
@@ -211,10 +211,26 @@ public class ExchangeFrameworkTest {
 
         // Find and change the logging framework combo
         try {
-            bot.comboBoxWithLabel("Logging Framework:").setSelection("Log4j 2");
-            log("3.3 changed framework to Log4j 2");
+            // Combo items include "(built-in)" suffix for built-in profiles
+            var combo = bot.comboBoxWithLabel("Logging Framework:");
+            String[] items = combo.items();
+            String log4j2Item = null;
+            for (String item : items) {
+                if (item.startsWith("Log4j 2")) {
+                    log4j2Item = item;
+                    break;
+                }
+            }
+            if (log4j2Item != null) {
+                combo.setSelection(log4j2Item);
+                log("3.3 changed framework to " + log4j2Item);
+            } else {
+                System.out.println("Log4j 2 not found in combo items: " + java.util.Arrays.toString(items));
+                fail("Log4j 2 option not found in Logging Framework combo");
+            }
         } catch (Exception e) {
             System.out.println("Could not find framework combo: " + e.getMessage());
+            fail("Could not find framework combo: " + e.getMessage());
         }
 
         // Disable show confirmation dialog for testing
@@ -281,7 +297,7 @@ public class ExchangeFrameworkTest {
             }
         }
 
-        bot.sleep(1500);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
         styledText.setFocus();
 
         String contentAfter = styledText.getText();
@@ -322,22 +338,31 @@ public class ExchangeFrameworkTest {
 
         // Open preferences
         bot.menu("Window").menu("Preferences...").click();
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
 
         // Navigate to Log4E preferences
         SWTBotTreeItem log4eNode = bot.tree().getTreeItem("Log4E 2026");
         log4eNode.select();
 
-        // Change back to SLF4J
+        // Change back to SLF4J - items include "(built-in)" suffix
         try {
-            bot.comboBox().setSelection("SLF4J");
-            log("5.1 changed framework back to SLF4J");
-        } catch (Exception e) {
-            try {
-                bot.comboBoxWithLabel("Logging Framework:").setSelection("SLF4J");
-            } catch (Exception e2) {
-                System.out.println("Could not change framework: " + e2.getMessage());
+            var combo = bot.comboBoxWithLabel("Logging Framework:");
+            String[] items = combo.items();
+            String slf4jItem = null;
+            for (String item : items) {
+                if (item.startsWith("SLF4J")) {
+                    slf4jItem = item;
+                    break;
+                }
             }
+            if (slf4jItem != null) {
+                combo.setSelection(slf4jItem);
+                log("5.1 changed framework back to " + slf4jItem);
+            } else {
+                fail("SLF4J option not found in Logging Framework combo");
+            }
+        } catch (Exception e) {
+            System.out.println("Could not change framework: " + e.getMessage());
         }
 
         bot.button("Apply and Close").click();
@@ -387,7 +412,7 @@ public class ExchangeFrameworkTest {
             }
         }
 
-        bot.sleep(1500);
+        TestTimingUtil.waitUntil(bot, TestTimingUtil.editorContentChanges(styledText, contentBefore), 1000);
         styledText.setFocus();
 
         String contentAfter = styledText.getText();
@@ -419,7 +444,7 @@ public class ExchangeFrameworkTest {
             SWTBotTreeItem project = bot.tree().getTreeItem(PROJECT_NAME);
             project.select();
             project.contextMenu("Delete").click();
-            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 3000);
+            TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Delete Resources"), 1000);
             bot.checkBox("Delete project contents on disk (cannot be undone)").click();
             bot.button("OK").click();
             projectCreated = false;

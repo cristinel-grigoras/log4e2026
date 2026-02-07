@@ -32,6 +32,8 @@ import ro.gs1.log4e2026.jdt.ASTUtil;
 import ro.gs1.log4e2026.preferences.PreferenceConstants;
 import ro.gs1.log4e2026.templates.LoggerTemplate;
 import ro.gs1.log4e2026.templates.LoggerTemplates;
+import ro.gs1.log4e2026.templates.Profile;
+import ro.gs1.log4e2026.templates.ProfileManager;
 
 /**
  * Handler for exchanging the logging framework in a class.
@@ -87,10 +89,9 @@ public class ExchangeFrameworkHandler extends AbstractHandler {
                 }
                 targetFramework = dialog.getTargetFramework();
             } else {
-                // Use preference setting
-                targetFramework = Log4e2026Plugin.getPreferences().getString(
-                        PreferenceConstants.P_LOGGING_FRAMEWORK);
-                if (targetFramework == null || targetFramework.isEmpty()) {
+                // Use preference setting - resolve profile name to framework constant
+                targetFramework = resolveTargetFramework();
+                if (targetFramework == null) {
                     targetFramework = LoggerTemplates.SLF4J;
                 }
             }
@@ -234,6 +235,32 @@ public class ExchangeFrameworkHandler extends AbstractHandler {
                 }
             }
         }
+    }
+
+    /**
+     * Resolve the target framework constant from the preference profile.
+     * The preference stores a profile name (UUID), which needs to be mapped
+     * to a LoggerTemplates constant (SLF4J, LOG4J2, JUL).
+     */
+    private String resolveTargetFramework() {
+        Profile profile = ProfileManager.getInstance().getCurrentProfile();
+        if (profile == null) {
+            return null;
+        }
+        String loggerType = profile.getString("LOGGER_TYPE");
+        if (loggerType == null) {
+            return null;
+        }
+        if (loggerType.contains("slf4j")) {
+            return LoggerTemplates.SLF4J;
+        }
+        if (loggerType.contains("log4j")) {
+            return LoggerTemplates.LOG4J2;
+        }
+        if (loggerType.contains("java.util.logging")) {
+            return LoggerTemplates.JUL;
+        }
+        return null;
     }
 
     private boolean isLoggerField(String fieldName) {

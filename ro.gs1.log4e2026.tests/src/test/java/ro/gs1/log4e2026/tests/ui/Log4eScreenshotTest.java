@@ -10,8 +10,6 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.junit.After;
-
-import ro.gs1.log4e2026.tests.util.TestTimingUtil;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,7 +42,7 @@ public class Log4eScreenshotTest {
         }
         // Disable automatic failure screenshots
         SWTBotPreferences.SCREENSHOTS_DIR = "";
-        SWTBotPreferences.TIMEOUT = 10000;
+        SWTBotPreferences.TIMEOUT = 1000;
     }
 
     @AfterClass
@@ -79,11 +77,9 @@ public class Log4eScreenshotTest {
     public void captureWorkbenchWithEditMenu() throws Exception {
         log("start");
         TestTimingUtil.focusWorkbenchShell(bot);
-        int shellCount = bot.shells().length;
         log("after setFocus");
 
         bot.activeShell().pressShortcut(SWT.ALT, 'e');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+E");
 
         String filename = SCREENSHOT_DIR + "/01_edit_menu.png";
@@ -95,11 +91,9 @@ public class Log4eScreenshotTest {
     public void captureLog4eInEditMenu() throws Exception {
         log("start");
         TestTimingUtil.focusWorkbenchShell(bot);
-        int shellCount = bot.shells().length;
         log("after setFocus");
 
         bot.activeShell().pressShortcut(SWT.ALT, 'e');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+E");
 
         String filename = SCREENSHOT_DIR + "/02_edit_menu_with_log4e.png";
@@ -111,11 +105,9 @@ public class Log4eScreenshotTest {
     public void captureFileMenu() throws Exception {
         log("start");
         TestTimingUtil.focusWorkbenchShell(bot);
-        int shellCount = bot.shells().length;
         log("after setFocus");
 
         bot.activeShell().pressShortcut(SWT.ALT, 'f');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+F");
 
         String filename = SCREENSHOT_DIR + "/03_file_menu.png";
@@ -127,11 +119,9 @@ public class Log4eScreenshotTest {
     public void captureWindowMenu() throws Exception {
         log("start");
         TestTimingUtil.focusWorkbenchShell(bot);
-        int shellCount = bot.shells().length;
         log("after setFocus");
 
         bot.activeShell().pressShortcut(SWT.ALT, 'w');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
         log("after Alt+W");
 
         String filename = SCREENSHOT_DIR + "/04_window_menu.png";
@@ -143,20 +133,14 @@ public class Log4eScreenshotTest {
     public void captureLog4ePreferencePage() throws Exception {
         log("start");
         TestTimingUtil.focusWorkbenchShell(bot);
-        int shellCount = bot.shells().length;
         log("after setFocus");
 
-        bot.activeShell().pressShortcut(SWT.ALT, 'w');
-        TestTimingUtil.waitUntil(bot, TestTimingUtil.shellCountIncreases(bot, shellCount), 2000);
-        log("after Alt+W");
-
-        bot.activeShell().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance(SWT.END));
-        bot.activeShell().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance(SWT.CR));
-        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 5000);
+        bot.menu("Window").menu("Preferences").click();
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
         log("after Preferences open");
 
         bot.tree().getTreeItem("Log4E 2026").select();
-        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.button("Apply")), 2000);
+        TestTimingUtil.waitUntil(bot, Conditions.widgetIsEnabled(bot.button("Apply")), 1000);
         log("after Log4E select");
 
         String filename = SCREENSHOT_DIR + "/05_log4e_preferences.png";

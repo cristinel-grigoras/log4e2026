@@ -43,7 +43,7 @@ public class PreferencePagesTest {
     public static void setUpClass() {
         // Reduce delays for faster test execution
         SWTBotPreferences.PLAYBACK_DELAY = 0;   // No delay between actions
-        SWTBotPreferences.TIMEOUT = 5000;       // 5 seconds timeout
+        SWTBotPreferences.TIMEOUT = 1000;
         SWTBotPreferences.KEYBOARD_LAYOUT = "EN_US";
         SWTBotPreferences.TYPE_INTERVAL = 0;    // No delay between keystrokes
 
@@ -93,7 +93,7 @@ public class PreferencePagesTest {
         TestTimingUtil.log(bot, "after menu click");
 
         // Wait for Preferences dialog to appear
-        bot.waitUntil(Conditions.shellIsActive("Preferences"), 5000);
+        TestTimingUtil.waitUntil(bot, Conditions.shellIsActive("Preferences"), 1000);
         TestTimingUtil.log(bot, "Preferences open");
         preferencesOpen = true;
     }
@@ -207,15 +207,27 @@ public class PreferencePagesTest {
         selectPreferencePage("Log4E 2026", "Position");
         log("after select Position");
 
+        // Position page has tabs: START, END, CATCH (using regular TabFolder)
+        // START tab is active by default
         assertNotNull("START enabled checkbox should exist",
             bot.checkBox("Enable log statements at method START"));
+        log("after START assertion");
+        captureScreenshot("04_position_start_tab");
+
+        // Select END tab using tabItem (not cTabItem)
+        bot.tabItem("END").activate();
+        log("after select END tab");
         assertNotNull("END enabled checkbox should exist",
             bot.checkBox("Enable log statements at method END"));
+        captureScreenshot("04_position_end_tab");
+
+        // Select CATCH tab
+        bot.tabItem("CATCH").activate();
+        log("after select CATCH tab");
         assertNotNull("CATCH enabled checkbox should exist",
             bot.checkBox("Enable log statements in CATCH blocks"));
         log("after assertions");
-
-        captureScreenshot("04_position_page");
+        captureScreenshot("04_position_catch_tab");
     }
 
     @Test
